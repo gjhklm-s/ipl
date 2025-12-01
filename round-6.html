@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dutch Auction</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      color: white;
+      padding: 20px;
+    }
+    select, button, input {
+      font-size: 18px;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+    }
+    .history-item {
+      padding: 5px;
+      margin: 5px;
+      border-radius: 5px;
+    }
+    .sold { background: #27ae60; }
+    .unsold { background: #c0392b; }
+    #alertBox {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dutch Auction</h1>
+
+  <label for="teamSelect">User:</label>
+  <select id="teamSelect">
+    <option value="">Select</option>
+    <option value="Karan">Periyar</option>
+    <option value="Selva">Selva</option>
+    <option value="Koushik">Kanish</option>
+    <option value="Manoj">Manoj</option>
+    <option value="Avenash">Avenash</option>
+    <option value="Shanio">Bathri</option>
+    <option value="Rohit">Rohit</option>
+    <option value="Abdul">Abdul</option>
+    <option value="Aswath">Aswath</option>
+    <option value="Varshan">Varshan</option>
+    <option value="rrk">rrk</option>
+    <option value="Gokul">Gokul</option>
+    <option value="Jerwin">Yswanth</option>
+  </select><br>
+
+  <input type="password" id="adminPassword" placeholder="Admin Password">
+  <button onclick="authorizeStart()">Start Auction</button><br>
+
+  <h2 id="playerName">Player: --</h2>
+  <p>💰 Price: ₹<span id="price">--</span> Cr</p>
+  <button id="buyBtn" disabled>BUY NOW</button>
+  <p id="status">Waiting for admin to start...</p>
+
+  <h3>Auction History</h3>
+  <div id="auctionHistory"></div>
+
+  <div id="alertBox"></div>
+  <!-- Fixed Main Page Button at Bottom Center -->
+<div style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);">
+    <a href="n2.html">
+      <button style="font-size: 18px; padding: 12px 30px; border-radius: 8px; background-color: #ffffff; color: #0072ff; font-weight: bold;">
+        🏠 Main Page
+      </button>
+    </a>
+  </div>
+  
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695343",
+      appId: "1:471068695343:web:fb438ffb39b21bcb68a1e4"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Load username from Firebase
+    let currentUsername = "";
+    db.ref("currentUser/username").on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        currentUsername = snapshot.val();
+        console.log("✅ Username loaded from Firebase:", currentUsername);
+        // Auto-select the username in the dropdown
+        const teamSelect = document.getElementById("teamSelect");
+        if (teamSelect) {
+          teamSelect.value = currentUsername;
+        }
+      }
+    });
+
+    const players = [
+      { name: "Tom Latham", points: 6 }, { name: "Sam Billings", points: 6 },
+      { name: "Varun Chakravarthy", points: 9 }, { name: "Dwaine Pretorius", points: 6 },
+      { name: "Ish Sodhi", points: 6 }, { name: "Kagiso Rabada", points: 9 },
+      { name: "Shaheen Afridi", points: 7 }, { name: "Arshdeep Singh", points: 9 },
+      { name: "Tom Curran", points: 6 }, { name: "Riyan Parag", points: 8 },
+      { name: "Chris Woakes", points: 6 }, { name: "Mitchell Santner", points: 8 },
+      { name: "Babar Azam", points: 7 }, { name: "Liam Livingstone", points: 8 },
+      { name: "James Neesham", points: 6 }, { name: "Reeza Hendricks", points: 6 }
+    ];
+
+    let currentIndex = 0;
+    let timer = null;
+    let auctionStarted = false;
+    let currentUser = "";
+    let resultShown = false;
+
+    const playerNameEl = document.getElementById("playerName");
+    const priceEl = document.getElementById("price");
+    const buyBtn = document.getElementById("buyBtn");
+    const teamSelect = document.getElementById("teamSelect");
+    const historyEl = document.getElementById("auctionHistory");
+    const statusEl = document.getElementById("status");
+    const alertBox = document.getElementById("alertBox");
+
+    teamSelect.onchange = () => {
+      currentUser = teamSelect.value;
+      if (auctionStarted && currentUser) {
+        buyBtn.disabled = false;
+      }
+    };
+
+    function showTempAlert(msg, callback) {
+      alertBox.textContent = msg;
+      alertBox.style.display = "block";
+      setTimeout(() => {
+        alertBox.style.display = "none";
+        if (callback) callback();
+      }, 5000);
+    }
+
+    function authorizeStart() {
+      const pwd = document.getElementById("adminPassword").value;
+      if (pwd === "7") {
+        auctionStarted = true;
+        currentIndex = 0;
+        historyEl.innerHTML = ""; // clear history on new start
+        db.ref("dutchAuction/data").set({}); // clear data
+        statusEl.textContent = "Auction started!";
+        if (currentUser) buyBtn.disabled = false;
+        runAuction();
+      } else {
+        alert("Wrong password");
+      }
+    }
+
+    function runAuction() {
+      if (currentIndex >= players.length) {
+        statusEl.textContent = "🎉 Auction Finished!";
+        return;
+      }
+
+      const player = players[currentIndex];
+      resultShown = false;
+
+      db.ref("dutchAuction/data").set({
+        name: player.name,
+        points: player.points,
+        price: 25,
+        soldTo: "",
+        soldPrice: 0,
+        running: true
+      });
+
+      timer = setInterval(() => {
+        db.ref("dutchAuction/data/price").transaction(price => {
+          if (price > 1) return price - 1;
+          clearInterval(timer);
+          markUnsold();
+          return 0;
+        });
+      }, 1500);
+    }
+
+    function markUnsold() {
+      db.ref("dutchAuction/data/running").set(false);
+    }
+
+    buyBtn.onclick = () => {
+      if (!auctionStarted) return showTempAlert("Wait for admin to start.");
+      if (!currentUser) return showTempAlert("Select your name first.");
+      db.ref("dutchAuction/data").once("value").then(snap => {
+        const data = snap.val();
+        if (!data.running || data.soldTo) return;
+        db.ref("dutchAuction/data").update({
+          soldTo: currentUser,
+          soldPrice: data.price,
+          running: false
+        });
+      });
+    };
+
+    db.ref("dutchAuction/data").on("value", snap => {
+      const data = snap.val();
+      if (!data || !data.name) return;
+
+      playerNameEl.textContent = `Player: ${data.name} (${data.points} pts)`;
+      priceEl.textContent = data.price;
+
+      if (!data.running && !resultShown) {
+        resultShown = true;
+        clearInterval(timer);
+
+        const msg = data.soldTo
+          ? `✅ ${data.name} SOLD to ${data.soldTo} for ₹${data.soldPrice} Cr`
+          : `❌ ${data.name} UNSOLD`;
+
+        statusEl.textContent = msg;
+
+        const item = document.createElement("div");
+        item.className = "history-item " + (data.soldTo ? "sold" : "unsold");
+        item.textContent = msg;
+        historyEl.appendChild(item);
+
+        showTempAlert(msg, () => {
+          currentIndex++;
+          runAuction();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+

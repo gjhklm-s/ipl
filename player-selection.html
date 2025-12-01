@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Selection - Cricket Auction Game</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .player-selection {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .selection-header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+    }
+    
+    .selection-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .selection-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .player-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 15px;
+      padding: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .player-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .player-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .player-info h3 {
+      color: #00c6ff;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+    
+    .player-info p {
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+    
+    .bid-section {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      color: white;
+    }
+    
+    .bid-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .bid-button {
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .bid-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+    
+    .bid-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .current-bid {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #00c6ff;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .user-selector {
+      margin-bottom: 20px;
+    }
+    
+    .user-selector select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 16px;
+    }
+    
+    .user-selector select option {
+      background: #333;
+      color: white;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      color: #333;
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    
+    .close-btn {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    
+    .navigation {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .navigation .btn {
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="player-selection">
+    <div class="selection-header">
+      <h1>🏏 Player Selection</h1>
+      <p>Choose your players and start bidding in the auction!</p>
+    </div>
+    
+    <div class="bid-section">
+      <h2>Live Bidding System</h2>
+      <div class="user-selector">
+        <select id="userSelect">
+          <option value="">Select Your Name</option>
+          <option value="Karan">Karan</option>
+          <option value="Selva">Selva</option>
+          <option value="Koushik">Koushik</option>
+          <option value="Manoj">Manoj</option>
+          <option value="Avenash">Avenash</option>
+          <option value="Shanio">Shanio</option>
+          <option value="Rohit">Rohit</option>
+          <option value="Abdul">Abdul</option>
+          <option value="Aswath">Aswath</option>
+          <option value="Varshan">Varshan</option>
+          <option value="rrk">rrk</option>
+          <option value="Gokul">Gokul</option>
+          <option value="Jerwin">Jerwin</option>
+        </select>
+      </div>
+      
+      <div class="current-bid">
+        <div>Current Bid: <span id="currentBid">0.0 Cr</span></div>
+        <div>Total Bid: <span id="totalBid">0.0 Cr</span></div>
+        <div>Last Bidder: <span id="lastBidder">None</span></div>
+      </div>
+      
+      <div class="bid-controls">
+        <button class="bid-button" onclick="placeBid(0.2)">20L</button>
+        <button class="bid-button" onclick="placeBid(0.5)">50L</button>
+        <button class="bid-button" onclick="placeBid(1)">1 Cr</button>
+        <button class="bid-button" onclick="placeBid(2)">2 Cr</button>
+        <button class="bid-button" onclick="placeBid(5)">5 Cr</button>
+        <button class="bid-button" onclick="placeBid(10)">10 Cr</button>
+      </div>
+      
+      <div style="text-align: center;">
+        <button class="btn btn-danger" id="soldButton" onclick="confirmSale()">Mark as Sold</button>
+      </div>
+    </div>
+    
+    <div class="player-grid" id="playerGrid">
+      <!-- Player cards will be dynamically generated -->
+    </div>
+    
+    <div class="navigation">
+      <a href="auction-rounds.html" class="btn">Auction Rounds</a>
+      <a href="basic-quiz.html" class="btn">Basic Quiz</a>
+      <a href="advanced-quiz.html" class="btn">Advanced Quiz</a>
+      <a href="../index.html" class="btn">Home</a>
+    </div>
+  </div>
+  
+  <!-- Modal for player details -->
+  <div id="playerModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Player Details</h3>
+      <p id="modalText">Player information</p>
+      <img id="modalImage" src="" alt="Player Image" style="max-width: 200px;">
+      <br>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { database } from '../config/firebase.js';
+    import { ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js';
+    
+    // Firebase References
+    const currentBidRef = ref(database, "auction/currentBid");
+    const totalBidRef = ref(database, "auction/totalBid");
+    const lastBidderRef = ref(database, "auction/lastBidder");
+    const usernameRef = ref(database, "currentUser/username");
+    
+    // Load username from Firebase
+    let currentUsername = "";
+    onValue(usernameRef, (snapshot) => {
+      if (snapshot.exists()) {
+        currentUsername = snapshot.val();
+        console.log("✅ Username loaded from Firebase:", currentUsername);
+        // Auto-select the username in the dropdown
+        const userSelect = document.getElementById("userSelect");
+        if (userSelect) {
+          userSelect.value = currentUsername;
+        }
+      }
+    });
+    
+    let selectedUser = currentUsername;
+    let activeTimers = {};
+    
+    // Player data
+    const players = [
+      {
+        id: 1,
+        name: "Jos Buttler",
+        image: "../assets/images/jos.png",
+        role: "WK Batsman",
+        nation: "England",
+        style: "RHB",
+        basePrice: 2.0,
+        description: "The explosive wicketkeeper-batsman!"
+      },
+      {
+        id: 2,
+        name: "Deepak Chahar",
+        image: "../assets/images/p1.png",
+        role: "Fast Bowling All-rounder",
+        nation: "India",
+        style: "RHB",
+        basePrice: 1.5,
+        description: "Right-arm medium pace bowler and handy batsman"
+      },
+      {
+        id: 3,
+        name: "Krishnapa Gowtham",
+        image: "../assets/images/p2.png",
+        role: "Off-spinning All-rounder",
+        nation: "India",
+        style: "RHB",
+        basePrice: 1.0,
+        description: "Off-spinning all-rounder with batting skills"
+      },
+      {
+        id: 4,
+        name: "Sunil Narine",
+        image: "../assets/images/p3.png",
+        role: "Spinner and Batsman",
+        nation: "West Indies",
+        style: "LHB",
+        basePrice: 2.5,
+        description: "Mystery spinner and explosive batsman"
+      },
+      {
+        id: 5,
+        name: "T Natarajan",
+        image: "../assets/images/p4.png",
+        role: "Fast Bowler",
+        nation: "India",
+        style: "LHB",
+        basePrice: 1.2,
+        description: "Left-arm fast bowler with yorker specialist"
+      },
+      {
+        id: 6,
+        name: "David Warner",
+        image: "../assets/images/p5.png",
+        role: "Opening Batsman",
+        nation: "Australia",
+        style: "LHB",
+        basePrice: 3.0,
+        description: "Aggressive opening batsman and former captain"
+      },
+      {
+        id: 7,
+        name: "Venkatesh Iyer",
+        image: "../assets/images/p6.png",
+        role: "All-rounder",
+        nation: "India",
+        style: "LHB",
+        basePrice: 1.8,
+        description: "Right-arm medium and left-handed batsman"
+      },
+      {
+        id: 8,
+        name: "Mohammed Siraj",
+        image: "../assets/images/p7.png",
+        role: "Fast Bowler",
+        nation: "India",
+        style: "RHB",
+        basePrice: 2.2,
+        description: "Right-arm fast bowler with swing and pace"
+      },
+      {
+        id: 9,
+        name: "Matheesha Pathirana",
+        image: "../assets/images/p8.png",
+        role: "Fast Bowler",
+        nation: "Sri Lanka",
+        style: "RHB",
+        basePrice: 1.5,
+        description: "Right-arm fast bowler with sling action"
+      },
+      {
+        id: 10,
+        name: "Ravi Bishnoi",
+        image: "../assets/images/gill.png",
+        role: "Leg Spinner",
+        nation: "India",
+        style: "RHB",
+        basePrice: 1.0,
+        description: "Young leg-spinner with great potential"
+      }
+    ];
+    
+    // Initialize the page
+    function init() {
+      renderPlayers();
+      setupEventListeners();
+      setupFirebaseListeners();
+    }
+    
+    // Render player cards
+    function renderPlayers() {
+      const grid = document.getElementById('playerGrid');
+      grid.innerHTML = '';
+      
+      players.forEach(player => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.innerHTML = `
+          <img src="${player.image}" alt="${player.name}" class="player-image" onerror="this.src='../assets/images/gill.png'">
+          <div class="player-info">
+            <h3>${player.name}</h3>
+            <p><strong>Role:</strong> ${player.role}</p>
+            <p><strong>Nation:</strong> ${player.nation}</p>
+            <p><strong>Style:</strong> ${player.style}</p>
+            <p><strong>Base Price:</strong> ₹${player.basePrice} Cr</p>
+            <p>${player.description}</p>
+          </div>
+        `;
+        card.onclick = () => showPlayerModal(player);
+        grid.appendChild(card);
+      });
+    }
+    
+    // Show player modal
+    function showPlayerModal(player) {
+      document.getElementById('modalTitle').textContent = player.name;
+      document.getElementById('modalText').textContent = `${player.role} | ${player.nation} | ${player.style}\nBase Price: ₹${player.basePrice} Cr\n\n${player.description}`;
+      document.getElementById('modalImage').src = player.image;
+      document.getElementById('playerModal').style.display = 'block';
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('playerModal').style.display = 'none';
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById('userSelect').addEventListener('change', function() {
+        selectedUser = this.value;
+        updateBidButtons();
+      });
+      
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        const modal = document.getElementById('playerModal');
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+    }
+    
+    // Setup Firebase listeners
+    function setupFirebaseListeners() {
+      onValue(currentBidRef, (snapshot) => {
+        const bidValue = snapshot.exists() ? parseFloat(snapshot.val()).toFixed(1) : "0.0";
+        document.getElementById("currentBid").textContent = bidValue + " Cr";
+      });
+      
+      onValue(totalBidRef, (snapshot) => {
+        const totalValue = snapshot.exists() ? parseFloat(snapshot.val()).toFixed(1) : "0.0";
+        document.getElementById("totalBid").textContent = totalValue + " Cr";
+      });
+      
+      onValue(lastBidderRef, (snapshot) => {
+        const bidder = snapshot.exists() ? snapshot.val() : "None";
+        document.getElementById("lastBidder").textContent = bidder;
+      });
+    }
+    
+    // Update bid buttons based on user selection
+    function updateBidButtons() {
+      const buttons = document.querySelectorAll('.bid-button');
+      buttons.forEach(button => {
+        button.disabled = !selectedUser;
+      });
+    }
+    
+    // Place bid
+    window.placeBid = function(amount) {
+      if (!selectedUser) {
+        alert('Please select your name first!');
+        return;
+      }
+      
+      if (activeTimers[selectedUser]) {
+        alert('⏳ Wait until your timer finishes!');
+        return;
+      }
+      
+      // Update Firebase
+      get(totalBidRef).then((snapshot) => {
+        let totalBid = snapshot.exists() ? parseFloat(snapshot.val()) : 0;
+        let newTotalBid = (totalBid + amount).toFixed(1);
+        newTotalBid = parseFloat(newTotalBid);
+        
+        set(currentBidRef, amount);
+        set(totalBidRef, newTotalBid);
+        set(lastBidderRef, selectedUser);
+        
+        // Start cooldown timer
+        startUserTimer(selectedUser);
+      }).catch(error => console.error("Error placing bid:", error));
+    };
+    
+    // Start user timer
+    function startUserTimer(user) {
+      if (activeTimers[user]) return;
+      
+      let timeLeft = [3, 5, 2, 4, 3][Math.floor(Math.random() * 5)];
+      
+      activeTimers[user] = setInterval(() => {
+        timeLeft--;
+        if (timeLeft === 0) {
+          clearInterval(activeTimers[user]);
+          delete activeTimers[user];
+        }
+      }, 1000);
+    }
+    
+    // Confirm sale
+    window.confirmSale = function() {
+      const password = prompt("Enter admin password to confirm sale:");
+      const correctPasswords = ["our", "s", "play", "183"];
+      
+      if (correctPasswords.includes(password)) {
+        get(lastBidderRef).then((snapshot) => {
+          const lastBidder = snapshot.exists() ? snapshot.val() : "Unknown";
+          get(totalBidRef).then((totalSnapshot) => {
+            const totalBid = totalSnapshot.exists() ? parseFloat(totalSnapshot.val()).toFixed(1) : "0.0";
+            
+            alert(`🎉 ${lastBidder} bought the player for ${totalBid} Cr!`);
+            
+            // Reset auction
+            set(currentBidRef, 0);
+            set(totalBidRef, 0);
+            set(lastBidderRef, "None");
+          });
+        });
+      } else if (password !== null) {
+        alert("❌ Incorrect password. Access denied.");
+      }
+    };
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

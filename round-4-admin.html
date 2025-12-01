@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎲 Roll Dice Admin Panel</title>
+  
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      --success-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+      --warning-gradient: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+      --text-primary: #ffffff;
+      --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.3);
+      --border-radius: 20px;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    .admin-container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .admin-container h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .admin-container p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+
+    .admin-section {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .admin-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 25px;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 15px;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 5px solid rgba(255, 255, 255, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: #ffd200;
+    }
+
+    .password-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+
+    .password-input {
+      padding: 14px 20px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+      min-width: 220px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .password-input:focus {
+      outline: none;
+      border-color: #ffd200;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 15px rgba(255, 210, 0, 0.3);
+    }
+
+    .password-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 25px 0;
+    }
+
+    button {
+      padding: 14px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-danger {
+      background: var(--danger-gradient);
+      box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+    }
+
+    .btn-danger:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(235, 51, 73, 0.6);
+    }
+
+    .btn-danger:active {
+      transform: scale(0.95);
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-back:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(79, 172, 254, 0.6);
+    }
+
+    .btn-back:active {
+      transform: scale(0.95);
+    }
+
+    .status-message {
+      padding: 18px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-align: center;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-message.success {
+      background: rgba(0, 176, 155, 0.2);
+      border: 2px solid rgba(0, 176, 155, 0.5);
+      color: #00d4aa;
+      display: block;
+    }
+
+    .status-message.error {
+      background: rgba(235, 51, 73, 0.2);
+      border: 2px solid rgba(235, 51, 73, 0.5);
+      color: #ff6b7a;
+      display: block;
+    }
+
+    .stats-box {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-box h3 {
+      margin: 10px 0;
+      font-size: 1.3rem;
+      color: #ffd200;
+    }
+
+    .stats-box p {
+      margin: 5px 0;
+      opacity: 0.9;
+    }
+
+    .warning-box {
+      background: rgba(247, 151, 30, 0.15);
+      border-left: 5px solid #f7971e;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .warning-box strong {
+      color: #ffd200;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 35px;
+    }
+
+    @media (max-width: 600px) {
+      .admin-container {
+        padding: 25px;
+        margin: 20px 10px;
+      }
+
+      .admin-container h1 {
+        font-size: 2rem;
+      }
+
+      .password-input {
+        min-width: 100%;
+      }
+
+      button {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+
+      .password-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>🎲 Dice Roll Admin Panel</h1>
+    <p>Manage game rolls and control game settings</p>
+    
+    <!-- Status Message -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- Clear Rolls Section -->
+    <div class="admin-section">
+      <h2>🔄 Clear All Rolls</h2>
+      
+      <div class="info-box">
+        <p>This will reset all players' dice rolls and allow them to roll again. This action cannot be undone.</p>
+      </div>
+
+      <div class="stats-box">
+        <h3 id="rollCount">Total Rolls: 0</h3>
+        <p id="rollDetails">No data available</p>
+      </div>
+
+      <div class="password-group">
+        <input 
+          type="password" 
+          id="adminPassword" 
+          class="password-input" 
+          placeholder="Enter admin password"
+          autocomplete="off"
+        >
+        <button class="btn-danger" onclick="clearAllRolls()">🗑️ Clear All Rolls</button>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Warning:</strong><br>
+        Clearing rolls will reset all players' dice rolls. Only use this if you want to restart the round.
+      </div>
+    </div>
+
+    <!-- Game Stats Section -->
+    <div class="admin-section">
+      <h2>📊 Game Statistics</h2>
+      
+      <div class="stats-box">
+        <p>Last Updated: <span id="lastUpdate">-</span></p>
+        <p>Status: <span id="gameStatus">Ready</span></p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="goToRound4()">🎲 Back to Dice Game</button>
+      <button class="btn-back" onclick="goHome()">🏠 Main Page</button>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Configuration (using older SDK as in round-4.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695841",
+      appId: "1:471068695841:web:583eccd3c92b236d123260"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // Load and display roll statistics
+    function updateRollStats() {
+      db.ref("rolls").on("value", (snapshot) => {
+        const data = snapshot.val();
+        const rollCount = data ? Object.keys(data).length : 0;
+        
+        document.getElementById("rollCount").textContent = `Total Rolls: ${rollCount}`;
+        
+        if (data) {
+          let details = "<strong>Rolled Players:</strong><br>";
+          for (const player in data) {
+            details += `${player}: ${data[player].bonus}<br>`;
+          }
+          document.getElementById("rollDetails").innerHTML = details;
+        } else {
+          document.getElementById("rollDetails").innerHTML = "No rolls yet";
+        }
+
+        // Update timestamp
+        const now = new Date();
+        document.getElementById("lastUpdate").textContent = now.toLocaleTimeString();
+      });
+    }
+
+    // Clear all rolls function
+    window.clearAllRolls = function() {
+      const password = document.getElementById("adminPassword").value;
+      
+      if (!password) {
+        showStatus("❌ Please enter the admin password!", "error");
+        return;
+      }
+
+      if (password !== "7") {
+        showStatus("❌ Incorrect password!", "error");
+        document.getElementById("adminPassword").value = "";
+        return;
+      }
+
+      // Clear all rolls
+      db.ref("rolls").remove().then(() => {
+        showStatus("✅ All rolls cleared successfully! Players can roll again.", "success");
+        document.getElementById("adminPassword").value = "";
+        document.getElementById("gameStatus").textContent = "Rolls Cleared";
+        updateRollStats();
+      }).catch((error) => {
+        showStatus("❌ Error clearing rolls: " + error.message, "error");
+      });
+    };
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById("statusMessage");
+      statusDiv.textContent = message;
+      statusDiv.className = `status-message ${type}`;
+      
+      setTimeout(() => {
+        statusDiv.className = "status-message";
+      }, 5000);
+    }
+
+    window.goToRound4 = function() {
+      window.location.href = "round-4.html";
+    };
+
+    window.goHome = function() {
+      window.location.href = "main-1.html";
+    };
+
+    // Initialize stats on page load
+    updateRollStats();
+    document.getElementById("gameStatus").textContent = "Ready";
+  </script>
+</body>
+</html>

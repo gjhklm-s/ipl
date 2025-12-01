@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Who?</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff8c42;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background: #e56717;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-100 to-indigo-100 min-h-screen flex flex-col justify-between p-4">
+
+  <!-- Main Content -->
+  <div class="flex-grow flex items-center justify-center">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full space-y-8">
+      
+      <!-- Heading -->
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-indigo-700">Find Who?</h1>
+      </div>
+
+      <!-- Buttons -->
+      <div class="bg-indigo-50 rounded-xl p-6 flex flex-col items-center space-y-4">
+        <p class="text-gray-700 text-lg">Click to reveal the player</p>
+        <div class="flex gap-6">
+          <button 
+            onclick="showPlayer('prev')" 
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">
+            Previous Player
+          </button>
+          <button 
+            onclick="showPlayer('next')" 
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">
+            Next Player
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proceed Button at Bottom -->
+  <div class="text-center mt-6">
+    <button class="button" onclick="goToPage('j.html')">Main page</button>
+  </div>
+
+  <!-- Fullscreen Modal with Image -->
+  <div id="playerModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50">
+    <div class="relative max-w-full max-h-full p-4">
+      <img id="playerImage" src="" alt="Player" class="rounded-xl object-contain w-screen h-screen" />
+      <button 
+        onclick="closeModal()" 
+        class="absolute top-4 right-4 px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const playerImages = [
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/250390b6-f056-4d41-8653-e585f085fb5e.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/30ede234-211c-4cbd-912d-21166c52eb85.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/628b5e74-ef08-4cb8-94fb-e2035296aabe.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/6581da26-fee2-4308-9511-0383594d13b5.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/7389b7c5-d604-4fdb-9862-3590f73ed649.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/9090aab9-628c-4709-bd61-77047f58709c.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/a279334f-7ed9-441c-8527-324be2aa3cb1.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/a555cc55-cc90-40be-9271-be66db89712e.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/a662a2a7-7a2c-45f7-ab9d-a8efc530d8d6.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/d4539f6d-e52d-40dd-8147-5fedde4429fa.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/e8ce47d1-ed2d-474d-a49e-3a09482e9a01.jpg',
+  'https://github.com/gjhklm-s/advance/releases/download/qdk/f6146460-21eb-4400-9718-8746f5b1a754.jpg'
+];
+
+    let currentIndex = 0;
+
+    function showPlayer(direction) {
+      if (direction === 'next') {
+        currentIndex = (currentIndex + 1) % playerImages.length;
+      } else {
+        currentIndex = (currentIndex - 1 + playerImages.length) % playerImages.length;
+      }
+
+      const imageUrl = playerImages[currentIndex].trim();
+      document.getElementById('playerImage').src = imageUrl;
+      document.getElementById('playerModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('playerModal').classList.add('hidden');
+    }
+
+    function goToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

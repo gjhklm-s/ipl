@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎲 Bid Spinner Challenge</title>
+  
+  <!-- Import Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* CSS Variables for consistent theming */
+    :root {
+      /* Different theme from round-4 */
+      --primary-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+      --secondary-gradient: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+      --success-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+      --warning-gradient: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+      --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.3);
+      --border-radius: 20px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* General Body Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--primary-gradient);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 15% 35%, rgba(255, 255, 255, 0.08) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 25%, rgba(255, 94, 98, 0.2) 0%, transparent 50%),
+                  radial-gradient(circle at 50% 85%, rgba(0, 176, 155, 0.15) 0%, transparent 55%);
+      animation: backgroundShift 18s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(-20px) translateY(-10px); }
+      50% { transform: translateX(20px) translateY(10px); }
+      75% { transform: translateX(-10px) translateY(20px); }
+    }
+
+    /* Container Styling */
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-light);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .container:hover::before {
+      left: 100%;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    /* Enhanced Typography */
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: var(--secondary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      animation: titleGlow 3s ease-in-out infinite alternate;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    @keyframes titleGlow {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.2); }
+    }
+
+    /* Form Styling */
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    select {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    select:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+
+    /* Enhanced Button Styling */
+    button {
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 50px;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Inputs for Quick Auction Entry */
+    input[type="number"] {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+    #auctionResultR3 {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      min-height: 20px;
+    }
+
+    /* Special button variants */
+    .success-button {
+      background: var(--success-gradient);
+    }
+
+    .danger-button {
+      background: var(--danger-gradient);
+    }
+
+    .primary-button {
+      background: var(--warning-gradient);
+    }
+
+    /* Enhanced Spinner Canvas */
+    canvas {
+      margin: 20px auto;
+      display: block;
+      border-radius: 50%;
+      box-shadow: var(--shadow-heavy);
+      background: white;
+      border: 5px solid var(--glass-border);
+      transition: var(--transition);
+    }
+
+    canvas:hover {
+      transform: scale(1.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Spin Results */
+    #spinResult {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 20px 0;
+      padding: 15px;
+      background: var(--glass-bg);
+      border-radius: 15px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Spin Counts List */
+    #spinCounts {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    #spinCounts li {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      margin: 10px 0;
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-light);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      list-style: none;
+    }
+
+    #spinCounts li:hover {
+      transform: translateX(10px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    /* Player Grid Styling */
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .player-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .player-card:hover::before {
+      left: 100%;
+    }
+
+    .player-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .player-card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 10px 0;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .player-image {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: var(--transition);
+    }
+
+    .player-image:hover {
+      transform: scale(1.1);
+    }
+
+    /* Admin Panel Styling */
+    #adminSection {
+      display: none;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      border: 1px solid var(--glass-border);
+      margin: 20px 0;
+    }
+
+    #adminSection h3 {
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      background: var(--danger-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #userList label {
+      display: block;
+      margin: 10px 0;
+      padding: 10px 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    #userList label:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    #userList input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+    }
+
+    /* Divider Styling */
+    .divider {
+      height: 2px;
+      background: var(--secondary-gradient);
+      border-radius: 1px;
+      margin: 30px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 12px;
+      background: var(--secondary-gradient);
+      border-radius: 6px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      .player-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      
+      canvas {
+        width: 250px;
+        height: 250px;
+      }
+    }
+
+    /* Loading Animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary-gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-gradient);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="container">
+    <h1>🎲 Bid Spinner Challenge</h1>
+    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 0; text-align: center;">
+      Spin the wheel to determine your bidding power! Each spin gives you a different number of bids.
+    </p>
+  </div>
+
+  <!-- Spinner Controls -->
+  <div class="container">
+    <div class="form-group">
+      <label for="username">👤 Select Your Name:</label>
+      <select id="username"></select>
+    </div>
+
+    <button id="spinBtn" onclick="spinWheel()" class="success-button">🎯 Spin the Wheel</button>
+    <button id="clearBtn" onclick="adminClear()" class="danger-button">🔧 Admin Clear</button>
+
+    <canvas id="spinner" width="300" height="300" style="display:none;"></canvas>
+    <div id="spinResult"></div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Spin Counts -->
+  <div class="container">
+    <h3>📊 Spin Results</h3>
+    <ul id="spinCounts"></ul>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Quick Auction Entry (Round-4 players -> main table) -->
+  <div class="container">
+    <h2>💰 Quick Auction Entry</h2>
+    <div class="form-group">
+      <label for="selectedPlayerR4">🎯 Select Player (Round 4):</label>
+      <select id="selectedPlayerR4"></select>
+    </div>
+    <div class="form-group">
+      <label for="auctionUserR3">👤 Select User:</label>
+      <select id="auctionUserR3">
+        <option value="">-- Select User --</option>
+        <option value="Sujin">Sujin</option>
+        <option value="Ajin">Ajin</option>
+        <option value="Abi">Abi</option>
+        <option value="Asoke">Asoke</option>
+        <option value="Kamal">Kamal</option>
+        <option value="Anish">Anish</option>
+        <option value="DD">DD</option>
+        <option value="Raja">Raja</option>
+        <option value="Aswath">Aswath</option>
+        <option value="Varshan">Varshan</option>
+        <option value="rrk">rrk</option>
+        <option value="Gokul">Gokul</option>
+        <option value="Jerwin">Jerwin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="auctionAmountR3">💰 Enter Amount (Cr):</label>
+      <input type="number" id="auctionAmountR3" placeholder="Enter amount in crores" step="0.1" min="0.1" max="50" />
+    </div>
+    <button onclick="addToAuctionFromR3()" class="success-button">🚀 Add to Auction Table</button>
+    <div id="auctionResultR3"></div>
+  </div>
+
+  <!-- Players List with Images -->
+  <div class="container">
+    <h2>🏆 Available Players</h2>
+    <div class="player-grid">
+      <div class="player-card">
+        <h2>1. Nicholas Pooran</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140502.png" alt="Nicholas Pooran" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>2. Phil Salt</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140719.png" alt="Phil Salt" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>3. Sai Sudharsan</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183530.png" alt="Sai Sudharsan" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>4. Abhishek Sharma</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183347.png" alt="Abhishek Sharma" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>5. Suryakumar Yadav</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184827.png" alt="Suryakumar Yadav" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>6. Umran Malik</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201555.png" alt="Umran Malik" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>7. Pryanch Arya</h2>
+        <div style="width: 150px; height: 150px; background: var(--glass-bg); border-radius: 10px; margin: 10px auto; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">No Image</div>
+      </div>
+      <div class="player-card">
+        <h2>8. Rajat Patidar</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190426.png" alt="Rajat Patidar" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>9. Vaivabu Suryavanshi</h2>
+        <div style="width: 150px; height: 150px; background: var(--glass-bg); border-radius: 10px; margin: 10px auto; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">No Image</div>
+      </div>
+      <div class="player-card">
+        <h2>10. Cameron Green</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193251.png" alt="Cameron Green" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>11. Kuldeep Yadav</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195728.png" alt="Kuldeep Yadav" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>12. Maheesh Theekshana</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200034.png" alt="Maheesh Theekshana" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>13. Moeen Ali</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193540.png" alt="Moeen Ali" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>14. Mitchell Starc</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201031.png" alt="Mitchell Starc" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>15. Trent Boult</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201115.png" alt="Trent Boult" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>16. Tristan Stubbs</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185150.png" alt="Tristan Stubbs" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>17. Shubman Gill</h2>
+        <img src="gill.png" alt="Shubman Gill" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>18. Shardul Thakur</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201450.png" alt="Shardul Thakur" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>19. Suyash Sharma</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204227.png" alt="Suyash Sharma" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>20. Sam Curran</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193342.png" alt="Sam Curran" class="player-image">
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="container">
+    <button onclick="extPage()" class="primary-button" style="margin-bottom: 10px;">🏠 Main Page</button>
+    <button onclick="goToAdminPanel()" class="primary-button" style="margin-bottom: 30px;">🔧 Admin Panel</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, get, remove, update, push } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695841",
+      appId: "1:471068695841:web:583eccd3c92b236d123260"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+   
+
+    let currentUser = "";
+    let usernameFromFirebase = ""; // Store Firebase username
+    const usernameRef = ref(db, "currentUser/username");
+    
+    // Load username from Firebase
+    onValue(usernameRef, (snapshot) => {
+      if (snapshot.exists()) {
+        usernameFromFirebase = snapshot.val();
+        currentUser = usernameFromFirebase;
+        console.log("✅ Username loaded from Firebase:", usernameFromFirebase);
+        const usernameSelect = document.getElementById("username");
+        if (usernameSelect) {
+          usernameSelect.value = usernameFromFirebase;
+        }
+      }
+    });
+    
+    const allUsers = ["Karan", "Shanio", "Selva", "Koushik", "Abdul", "Avenash","Manoj","Rohit","Jerwin","Gokul","varshan","Raja","Aswath"];
+    const usernameSelect = document.getElementById("username");
+
+    const canvas = document.getElementById("spinner");
+    const ctx = canvas.getContext("2d");
+
+    const segments = [1, 2, 3, 4.3, 5.4, 6.5, 7.5, 0]; // Numeric segment values
+    const arcSize = (2 * Math.PI) / segments.length;
+
+    // Draw the wheel segments and numbers
+    function drawWheel(startAngle) {
+      const radius = canvas.width / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(radius, radius);
+      ctx.rotate(startAngle);
+
+      segments.forEach((seg, i) => {
+        ctx.beginPath();
+        ctx.fillStyle = `hsl(${i * 45}, 70%, 60%)`;
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius - 10, i * arcSize, (i + 1) * arcSize);
+        ctx.lineTo(0, 0);
+        ctx.fill();
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px Arial";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        const textAngle = i * arcSize + arcSize / 2;
+        ctx.save();
+        ctx.rotate(textAngle);
+        ctx.fillText(seg.toString(), radius - 20, 0);
+        ctx.restore();
+      });
+
+      ctx.restore();
+
+      // Draw the fixed needle on top center
+      drawNeedle();
+    }
+
+    // Needle fixed at top center pointing downwards towards wheel center
+    function drawNeedle() {
+      const radius = canvas.width / 2;
+      ctx.save();
+      ctx.translate(radius, radius);
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      const needleLength = 30;
+      const needleWidth = 15;
+      ctx.moveTo(0, -radius + 10); // needle tip near edge top
+      ctx.lineTo(-needleWidth / 2, -radius + 10 + needleLength);
+      ctx.lineTo(needleWidth / 2, -radius + 10 + needleLength);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    let allowedUsersSet = new Set();
+
+    // Populate user dropdown
+    allUsers.forEach(user => {
+      const opt = document.createElement("option");
+      opt.value = user;
+      opt.textContent = user;
+      usernameSelect.appendChild(opt);
+    });
+
+    onValue(ref(db, "allowedUsers"), snapshot => {
+      const data = snapshot.val();
+      allowedUsersSet = new Set(data ? Object.keys(data).filter(u => data[u]) : []);
+      updateUserInputState();
+    });
+
+    // Listen to spin results in DB and update list with exact spun number
+    onValue(ref(db, "spinStatus"), snapshot => {
+      const spinCounts = snapshot.val() || {};
+      const list = document.getElementById("spinCounts");
+      list.innerHTML = "";
+      allUsers.forEach(user => {
+        const spinVal = spinCounts[user]?.result || null;
+        const statusText = spinVal ? `✅ Spined (${spinVal} bids)` : '❌ Not Spined';
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${statusText}`;
+        list.appendChild(li);
+      });
+    });
+
+    window.spinWheel = function () {
+      currentUser = usernameSelect.value;
+      if (!allowedUsersSet.has(currentUser)) {
+        alert("You are not allowed to spin. Please contact admin.");
+        return;
+      }
+
+      get(ref(db, `spinStatus/${currentUser}`)).then(snapshot => {
+        if (snapshot.exists()) {
+          alert("You have already spined. Wait for admin clearance.");
+          return;
+        }
+
+        canvas.style.display = "block";
+        const chosenIndex = Math.floor(Math.random() * segments.length);
+        const spins = 5;
+
+        // The needle points at top (-π/2), so rotate wheel so chosen segment center aligns there
+        const targetAngle = (2 * Math.PI * spins) + (chosenIndex * arcSize) + (arcSize / 2) - (Math.PI / 2);
+        const duration = 3000;
+        const startTime = performance.now();
+
+        function animate(time) {
+          let elapsed = time - startTime;
+          if (elapsed > duration) elapsed = duration;
+          const t = elapsed / duration;
+          const easeOut = 1 - Math.pow(1 - t, 3);
+          const currentAngle = easeOut * targetAngle;
+          drawWheel(currentAngle);
+
+          if (elapsed < duration) {
+            requestAnimationFrame(animate);
+          } else {
+            const result = segments[chosenIndex];
+            set(ref(db, `spinStatus/${currentUser}`), { result }).then(() => {
+              document.getElementById("spinResult").textContent = `User ${currentUser} spun: ${result} bids`;
+            });
+          }
+        }
+
+        requestAnimationFrame(animate);
+      });
+    };
+
+    window.adminClear = function () {
+      const pwd = prompt("Enter admin password:");
+      if (pwd === "7") {
+        allUsers.forEach(u => remove(ref(db, `spinStatus/${u}`)));
+        alert("All users reset. Spinning allowed again.");
+        document.getElementById("spinResult").textContent = "";
+        canvas.style.display = "none";
+      } else {
+        alert("Wrong password!");
+      }
+    };
+
+    function showAdminPanel() {
+      const listDiv = document.getElementById("userList");
+      listDiv.innerHTML = "";
+
+      allUsers.forEach(user => {
+        const isChecked = allowedUsersSet.has(user);
+        const label = document.createElement("label");
+        label.style.display = "block";
+        label.innerHTML = `<input type="checkbox" value="${user}" ${isChecked ? "checked" : ""}> ${user}`;
+        listDiv.appendChild(label);
+      });
+
+      document.getElementById("adminSection").style.display = "block";
+    }
+
+    window.saveAllowedUsers = function () {
+      const checkboxes = document.querySelectorAll("#userList input[type=checkbox]");
+      const updated = {};
+      checkboxes.forEach(cb => updated[cb.value] = cb.checked);
+      set(ref(db, "allowedUsers"), updated).then(() => alert("Allowed users updated!"));
+    };
+
+    function updateUserInputState() {
+      const val = usernameSelect.value;
+      document.getElementById("spinBtn").disabled = !allowedUsersSet.has(val);
+    }
+
+    usernameSelect.addEventListener("change", updateUserInputState);
+    updateUserInputState();
+
+    // Navigate to admin panel
+    window.goToAdminPanel = function() {
+      window.location.href = "round-3-admin.html";
+    };
+
+    // ---------- Quick Auction Entry (Round-4 players) ----------
+    const round4Players = [
+      "Sanju Samson","Sameer Rizvi","Ruturaj Gaikwad","Steve Smith","Shimron Hetmyer",
+      "Krunal Pandya","Anrich Nortje","Karn Sharma","Dhoni","Quinton De Kock",
+      "Ishan Kishan","David Miller","Naveen-ul-Haq","Noor Ahmad","Gerald Coetzee",
+      "Rohit","Devon Conway","Mitchell Marsh","Glenn Phillips","Mohammad Shami",
+      "Andre Russell","Hardik Pandya","Kamlesh Nagarkoti","Shivam Mavi","Chetan Sakariya"
+    ];
+    const playerPointsMap = {
+      "Sanju Samson":8,"Sameer Rizvi":6,"Ruturaj Gaikwad":8,"Steve Smith":7,
+      "Shimron Hetmyer":8,"Krunal Pandya":8,"Anrich Nortje":9,"Karn Sharma":7,
+      "Dhoni":10,"Quinton De Kock":9,"Ishan Kishan":8,"David Miller":9,
+      "Naveen-ul-Haq":7,"Noor Ahmad":9,"Gerald Coetzee":7,"Rohit":10,
+      "Devon Conway":8,"Mitchell Marsh":8,"Glenn Phillips":7,"Mohammad Shami":9,
+      "Andre Russell":10,"Hardik Pandya":10,"Kamlesh Nagarkoti":6,"Shivam Mavi":6,
+      "Chetan Sakariya":7
+    };
+
+    const selectedPlayerR4 = document.getElementById("selectedPlayerR4");
+    if (selectedPlayerR4) {
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = ""; defaultOpt.textContent = "-- Select Player --";
+      selectedPlayerR4.appendChild(defaultOpt);
+      round4Players.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p; selectedPlayerR4.appendChild(opt);
+      });
+    }
+
+    function notifyR3(message, type = "info") {
+      const div = document.createElement('div');
+      div.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 12px 16px; border-radius: 10px; color: #fff; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,.3);`;
+      div.textContent = message;
+      div.style.background = type === 'success' ? 'linear-gradient(135deg,#00b09b,#96c93d)' : type === 'error' ? 'linear-gradient(135deg,#eb3349,#f45c43)' : 'linear-gradient(135deg,#ff9966,#ff5e62)';
+      document.body.appendChild(div);
+      setTimeout(()=>{ div.style.transition='all .3s'; div.style.opacity='0'; div.style.transform='translateX(100%)'; setTimeout(()=>div.remove(),300); }, 2500);
+    }
+
+    window.addToAuctionFromR3 = function() {
+      const player = (document.getElementById('selectedPlayerR4')||{}).value;
+      const user = (document.getElementById('auctionUserR3')||{}).value;
+      const amount = parseFloat((document.getElementById('auctionAmountR3')||{}).value);
+      const resultDiv = document.getElementById('auctionResultR3');
+
+      if (!player) { notifyR3('Please select a player!', 'error'); if(resultDiv) resultDiv.textContent='❌ Please select a player!'; return; }
+      if (!user) { notifyR3('Please select a user!', 'error'); if(resultDiv) resultDiv.textContent='❌ Please select a user!'; return; }
+      if (!amount || amount <= 0 || amount > 50) { notifyR3('Enter valid amount (0.1 - 50 Cr)', 'error'); if(resultDiv) resultDiv.textContent='❌ Enter valid amount (0.1 - 50 Cr)'; return; }
+
+      const points = playerPointsMap[player] || 4;
+
+      get(ref(db, `auctions/${player}`)).then(snap => {
+        if (snap.exists()) {
+          notifyR3(`Player "${player}" is already sold!`, 'error');
+          if(resultDiv) resultDiv.textContent = `❌ Player "${player}" is already sold!`;
+          return;
+        }
+
+        set(ref(db, `auctions/${player}`), { player, price: amount, team: user, points, timestamp: Date.now() })
+        .then(() => get(ref(db, `teams/${user}`)))
+        .then(userSnap => {
+          const team = userSnap.val() || { players: [], totalSpent: 0, remainingBudget: 150 };
+          team.players = team.players || [];
+          team.players.push({ player, price: amount, points });
+          team.totalSpent = (team.totalSpent || 0) + amount;
+          team.remainingBudget = 150 - team.totalSpent;
+          return set(ref(db, `teams/${user}`), team).then(() => team);
+        })
+        .then(team => {
+          push(ref(db, 'auctionMessages'), { message: `${user} bought ${player} for ₹${amount} Cr!`, totalPoints: (team.players||[]).reduce((s,p)=>s+(p.points||0),0), timestamp: Date.now() });
+          notifyR3(`✅ ${user} bought ${player} for ₹${amount} Cr!`, 'success');
+          if (resultDiv) resultDiv.textContent = `✅ ${user} bought ${player} for ₹${amount} Cr!`;
+          const amt = document.getElementById('auctionAmountR3'); if (amt) amt.value = '';
+        })
+        .catch(err => {
+          console.error(err);
+          notifyR3('Error adding to auction. Try again.', 'error');
+          if(resultDiv) resultDiv.textContent = '❌ Error adding to auction. Try again.';
+        });
+      });
+    }
+
+  </script>
+  <script>
+     function extPage() {
+        window.location.href = "n2.html"; // Replace with your actual page URL
+    }
+        
+  </script>
+</body>
+</html>

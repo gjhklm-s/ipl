@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 Dice Roll Bonus Viewer</title>
+  
+  <!-- Import Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* CSS Variables for consistent theming */
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.3);
+      --border-radius: 20px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* General Body Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--primary-gradient);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+      animation: backgroundShift 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(-20px) translateY(-10px); }
+      50% { transform: translateX(20px) translateY(10px); }
+      75% { transform: translateX(-10px) translateY(20px); }
+    }
+
+    /* Container Styling */
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-light);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .container:hover::before {
+      left: 100%;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    /* Enhanced Typography */
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: var(--secondary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      animation: titleGlow 3s ease-in-out infinite alternate;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    @keyframes titleGlow {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.2); }
+    }
+
+    /* Form Styling */
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    select {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    select:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+
+    /* Enhanced Button Styling */
+    button {
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 50px;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Special button variants */
+    .success-button {
+      background: var(--success-gradient);
+    }
+
+    .danger-button {
+      background: var(--danger-gradient);
+    }
+
+    .primary-button {
+      background: var(--warning-gradient);
+    }
+
+    /* Enhanced Dice Animation */
+    #diceImage {
+      font-size: 120px;
+      display: inline-block;
+      margin: 30px 0;
+      animation: diceFloat 2s ease-in-out infinite;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes diceFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .dice-rolling {
+      animation: diceRoll 1s ease-in-out infinite;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(90deg) scale(1.1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      75% { transform: rotate(270deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    /* Results Display */
+    #result {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 20px 0;
+      padding: 15px;
+      background: var(--glass-bg);
+      border-radius: 15px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      animation: resultPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes resultPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Player Grid Styling */
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .player-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .player-card:hover::before {
+      left: 100%;
+    }
+
+    .player-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .player-card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 10px 0;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .player-image {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: var(--transition);
+    }
+
+    .player-image:hover {
+      transform: scale(1.1);
+    }
+
+    /* Admin Panel Styling */
+    #adminControls {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    input[type="password"]:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      text-align: center;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+
+    input[type="number"]::placeholder {
+      color: var(--text-secondary);
+    }
+
+    #auctionResult {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      min-height: 20px;
+    }
+
+    /* Divider Styling */
+    .divider {
+      height: 2px;
+      background: var(--secondary-gradient);
+      border-radius: 1px;
+      margin: 30px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 12px;
+      background: var(--secondary-gradient);
+      border-radius: 6px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      .player-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+
+    /* Loading Animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary-gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-gradient);
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="container">
+    <h1>🎲 Dice Roll Bonus Viewer</h1>
+    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 0; text-align: center;">
+      Roll the dice to reveal your bonus! Each roll gives you a different bonus amount.
+    </p>
+  </div>
+
+  <!-- Dice Roll Controls -->
+  <div class="container">
+    <div class="form-group">
+      <label for="teamName">👤 Select Your Team:</label>
+  <select id="teamName">
+    <option value="">-- Select Team --</option>
+    <option value="Karan">Karan</option>
+    <option value="Selva">Selva</option>
+    <option value="Koushik">Koushik</option>
+    <option value="Manoj">Manoj</option>
+    <option value="Avenash">Avenash</option>
+    <option value="Shanio">Shanio</option>
+    <option value="Rohit">Rohit</option>
+    <option value="Abdul">Abdul</option>
+    <option value="Aswath">Aswath</option>
+    <option value="Varshan">Varshan</option>
+    <option value="rrk">rrk</option>
+    <option value="Gokul">Gokul</option>
+    <option value="Jerwin">Jerwin</option>
+  </select>
+    </div>
+
+    <button onclick="rollDice()" class="success-button">🎲 Roll Dice</button>
+
+  <div id="diceImage">🎲</div>
+  <div id="result">Loading...</div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Auction Controls -->
+  <div class="container">
+    <h2>💰 Quick Auction Entry</h2>
+    <div class="form-group">
+      <label for="selectedPlayer">🎯 Select Player:</label>
+      <select id="selectedPlayer">
+        <option value="">-- Select Player --</option>
+        <option value="Sanju Samson">1. Sanju Samson</option>
+        <option value="Sameer Rizvi">2. Sameer Rizvi</option>
+        <option value="Ruturaj Gaikwad">3. Ruturaj Gaikwad</option>
+        <option value="Steve Smith">4. Steve Smith</option>
+        <option value="Shimron Hetmyer">5. Shimron Hetmyer</option>
+        <option value="Krunal Pandya">6. Krunal Pandya</option>
+        <option value="Anrich Nortje">7. Anrich Nortje</option>
+        <option value="Karn Sharma">8. Karn Sharma</option>
+        <option value="Dhoni">9. Dhoni</option>
+        <option value="Quinton De Kock">10. Quinton De Kock</option>
+        <option value="Ishan Kishan">11. Ishan Kishan</option>
+        <option value="David Miller">12. David Miller</option>
+        <option value="Naveen-ul-Haq">13. Naveen-ul-Haq</option>
+        <option value="Noor Ahmad">14. Noor Ahmad</option>
+        <option value="Gerald Coetzee">15. Gerald Coetzee</option>
+        <option value="Rohit">16. Rohit</option>
+        <option value="Devon Conway">17. Devon Conway</option>
+        <option value="Mitchell Marsh">18. Mitchell Marsh</option>
+        <option value="Glenn Phillips">19. Glenn Phillips</option>
+        <option value="Mohammad Shami">20. Mohammad Shami</option>
+        <option value="Andre Russell">21. Andre Russell</option>
+        <option value="Hardik Pandya">22. Hardik Pandya</option>
+        <option value="Kamlesh Nagarkoti">23. Kamlesh Nagarkoti</option>
+        <option value="Shivam Mavi">24. Shivam Mavi</option>
+        <option value="Chetan Sakariya">25. Chetan Sakariya</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="auctionUser">👤 Select User:</label>
+      <select id="auctionUser">
+        <option value="">-- Select User --</option>
+        <option value="Sujin">Sujin</option>
+        <option value="Ajin">Ajin</option>
+        <option value="Abi">Abi</option>
+        <option value="Asoke">Asoke</option>
+        <option value="Kamal">Kamal</option>
+        <option value="Anish">Anish</option>
+        <option value="DD">DD</option>
+        <option value="Raja">Raja</option>
+        <option value="Aswath">Aswath</option>
+        <option value="Varshan">Varshan</option>
+        <option value="rrk">rrk</option>
+        <option value="Gokul">Gokul</option>
+        <option value="Jerwin">Jerwin</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="auctionAmount">💰 Enter Amount (Cr):</label>
+      <input type="number" id="auctionAmount" placeholder="Enter amount in crores" step="0.1" min="0.1" max="50">
+    </div>
+    
+    <button onclick="addToAuction()" class="success-button">🚀 Add to Auction Table</button>
+    <div id="auctionResult"></div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Players List with Images -->
+  <div class="container">
+    <h2>🏆 Available Players</h2>
+    <div class="player-grid">
+      <div class="player-card">
+        <h2>1. Sanju Samson</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141647.png" alt="Sanju Samson" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>2. Sameer Rizvi</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190514.png" alt="Sameer Rizvi" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>3. Ruturaj Gaikwad</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183245.png" alt="Ruturaj Gaikwad" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>4. Steve Smith</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190759.png" alt="Steve Smith" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>5. Shimron Hetmyer</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185004.png" alt="Shimron Hetmyer" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>6. Krunal Pandya</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193642.png" alt="Krunal Pandya" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>7. Anrich Nortje</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201101.png" alt="Anrich Nortje" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>8. Karn Sharma</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200153.png" alt="Karn Sharma" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>9. Dhoni</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141108.png" alt="Dhoni" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>10. Quinton De Kock</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/qdk.png" alt="Quinton De Kock" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>11. Ishan Kishan</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141208.png" alt="Ishan Kishan" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>12. David Miller</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184738.png" alt="David Miller" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>13. Naveen-ul-Haq</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201348.png" alt="Naveen-ul-Haq" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>14. Noor Ahmad</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195708.png" alt="Noor Ahmad" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>15. Gerald Coetzee</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.202012.png" alt="Gerald Coetzee" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>16. Rohit</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183311.png" alt="Rohit" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>17. Devon Conway</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141622.png" alt="Devon Conway" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>18. Mitchell Marsh</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193236.png" alt="Mitchell Marsh" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>19. Glenn Phillips</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193852.png" alt="Glenn Phillips" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>20. Mohammad Shami</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201249.png" alt="Mohammad Shami" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>21. Andre Russell</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193053.png" alt="Andre Russell" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>22. Hardik Pandya</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193112.png" alt="Hardik Pandya" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>23. Kamlesh Nagarkoti</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204153.png" alt="Kamlesh Nagarkoti" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>24. Shivam Mavi</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204209.png" alt="Shivam Mavi" class="player-image">
+      </div>
+      <div class="player-card">
+        <h2>25. Chetan Sakariya</h2>
+        <img src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204320.png" alt="Chetan Sakariya" class="player-image">
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="container">
+    <button onclick="goToPage('main-1.html')" class="primary-button" style="margin-bottom: 10px;">🏠 Main Page</button>
+    <button onclick="goToAdminPanel()" class="primary-button" style="margin-bottom: 30px;">🔧 Admin Panel</button>
+  </div>
+
+  <script>
+    function goToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695841",
+      appId: "1:471068695841:web:583eccd3c92b236d123260"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Load username from Firebase
+    let currentUsername = "";
+    db.ref("currentUser/username").on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        currentUsername = snapshot.val();
+        console.log("✅ Username loaded from Firebase:", currentUsername);
+        // Auto-select the username in the dropdown
+        const teamSelect = document.getElementById("teamName");
+        if (teamSelect) {
+          teamSelect.value = currentUsername;
+        }
+      }
+    });
+
+    const bonusOptions = [0, 2, -2, 111, 5, -5];
+    const diceEmojis = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+    // Enhanced dice rolling with animations
+    function rollDice() {
+      const team = document.getElementById("teamName").value || currentUsername;
+
+      // Check if team already rolled
+      db.ref("rolls/" + team).once("value").then(snapshot => {
+        if (snapshot.exists()) {
+          showNotification(`${team} has already rolled.`, "warning");
+          return;
+        }
+
+        // Start dice animation
+        startDiceAnimation();
+        
+        // Simulate rolling delay
+        setTimeout(() => {
+          const bonus = bonusOptions[Math.floor(Math.random() * bonusOptions.length)];
+          
+          // Save to Firebase
+          db.ref("rolls/" + team).set({
+            bonus: bonus,
+            timestamp: Date.now()
+          }).then(() => {
+            showNotification(`🎉 ${team} rolled and got ₹${bonus} Cr bonus!`, "success");
+            createParticleEffect();
+          });
+        }, 2000);
+      });
+    }
+
+    // Enhanced dice animation
+    function startDiceAnimation() {
+      const diceElement = document.getElementById("diceImage");
+      const rollButton = document.querySelector('button[onclick="rollDice()"]');
+      
+      // Disable button during roll
+      rollButton.disabled = true;
+      rollButton.textContent = "🎲 Rolling...";
+      
+      // Add rolling animation
+      diceElement.classList.add("dice-rolling");
+      
+      // Change dice emoji rapidly
+      let animationCount = 0;
+      const animationInterval = setInterval(() => {
+        diceElement.textContent = diceEmojis[Math.floor(Math.random() * diceEmojis.length)];
+        animationCount++;
+        
+        if (animationCount >= 20) {
+          clearInterval(animationInterval);
+          diceElement.classList.remove("dice-rolling");
+          diceElement.textContent = '🎲';
+          
+          // Re-enable button
+          rollButton.disabled = false;
+          rollButton.textContent = "🎲 Roll Dice";
+        }
+      }, 100);
+    }
+
+    // Particle effect for successful roll
+    function createParticleEffect() {
+      const diceElement = document.getElementById("diceImage");
+      const rect = diceElement.getBoundingClientRect();
+      
+      for (let i = 0; i < 20; i++) {
+        createParticle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    }
+
+    function createParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: fixed;
+        left: ${x}px;
+        top: ${y}px;
+        width: 6px;
+        height: 6px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        animation: particleFloat 1s ease-out forwards;
+      `;
+      
+      document.body.appendChild(particle);
+      
+      // Remove particle after animation
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, 1000);
+    }
+
+    // Add particle animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes particleFloat {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Enhanced notification system
+    function showNotification(message, type = "info") {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      `;
+      
+      // Set background based on type
+      switch(type) {
+        case 'success':
+          notification.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+          break;
+        case 'error':
+          notification.style.background = 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
+          break;
+        case 'warning':
+          notification.style.background = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+          break;
+        default:
+          notification.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      }
+      
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      // Auto remove after 3 seconds
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
+    // Add notification animations
+    const notificationStyle = document.createElement('style');
+    notificationStyle.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(notificationStyle);
+
+    function clearRolls() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "7") {
+        db.ref("rolls").remove().then(() => {
+          showNotification("All rolls cleared successfully!", "success");
+          document.getElementById("adminPass").value = "";
+        });
+      } else {
+        showNotification("Incorrect password!", "error");
+      }
+    }
+
+    // Navigate to admin panel
+    window.goToAdminPanel = function() {
+      window.location.href = "round-4-admin.html";
+    };
+
+    // Enhanced results display with animations
+    const resultDiv = document.getElementById("result");
+    firebase.database().ref("rolls").on("value", snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        resultDiv.innerHTML = '<div class="loading">No rolls yet. Waiting for players...</div>';
+        return;
+      }
+      
+      let display = '<div style="text-align: center;">';
+      let hasResults = false;
+      
+      for (const team in data) {
+        if (data[team].bonus !== undefined) {
+          hasResults = true;
+          const bonusClass = data[team].bonus > 0 ? 'success' : data[team].bonus < 0 ? 'error' : 'warning';
+          display += `
+            <div style="
+              background: var(--glass-bg);
+              backdrop-filter: blur(10px);
+              border-radius: 10px;
+              padding: 10px;
+              margin: 5px 0;
+              border: 1px solid var(--glass-border);
+              animation: fadeInUp 0.5s ease-out;
+            ">
+              🎉 <strong>${team}</strong> got 
+              <span style="
+                color: ${data[team].bonus > 0 ? '#4facfe' : data[team].bonus < 0 ? '#fa709a' : '#43e97b'};
+                font-weight: bold;
+                font-size: 1.2em;
+              ">₹${data[team].bonus} Cr</span>
+            </div>
+          `;
+        }
+      }
+      
+      display += '</div>';
+      
+      if (hasResults) {
+      resultDiv.innerHTML = display;
+      } else {
+        resultDiv.innerHTML = '<div class="loading">No rolls yet. Waiting for players...</div>';
+      }
+    });
+
+    // Add fadeInUp animation
+    const fadeStyle = document.createElement('style');
+    fadeStyle.textContent = `
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(fadeStyle);
+
+    // Player points mapping (same as main-2.html)
+    const playerPoints = {
+      "Sanju Samson": 8, "Sameer Rizvi": 6, "Ruturaj Gaikwad": 8, "Steve Smith": 7,
+      "Shimron Hetmyer": 8, "Krunal Pandya": 8, "Anrich Nortje": 9, "Karn Sharma": 7,
+      "Dhoni": 10, "Quinton De Kock": 9, "Ishan Kishan": 8, "David Miller": 9,
+      "Naveen-ul-Haq": 7, "Noor Ahmad": 9, "Gerald Coetzee": 7, "Rohit": 10,
+      "Devon Conway": 8, "Mitchell Marsh": 8, "Glenn Phillips": 7, "Mohammad Shami": 9,
+      "Andre Russell": 10, "Hardik Pandya": 10, "Kamlesh Nagarkoti": 6, "Shivam Mavi": 6,
+      "Chetan Sakariya": 7
+    };
+
+    // Auction functionality
+    function addToAuction() {
+      const selectedPlayer = document.getElementById("selectedPlayer").value;
+      const selectedUser = document.getElementById("auctionUser").value;
+      const amount = parseFloat(document.getElementById("auctionAmount").value);
+      const auctionResultDiv = document.getElementById("auctionResult");
+
+      // Validation
+      if (!selectedPlayer) {
+        showNotification("Please select a player!", "error");
+        auctionResultDiv.innerHTML = '<div style="color: #fa709a;">❌ Please select a player!</div>';
+        return;
+      }
+
+      if (!selectedUser) {
+        showNotification("Please select a user!", "error");
+        auctionResultDiv.innerHTML = '<div style="color: #fa709a;">❌ Please select a user!</div>';
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        showNotification("Please enter a valid amount!", "error");
+        auctionResultDiv.innerHTML = '<div style="color: #fa709a;">❌ Please enter a valid amount!</div>';
+        return;
+      }
+
+      if (amount > 50) {
+        showNotification("Amount cannot exceed 50 Cr!", "error");
+        auctionResultDiv.innerHTML = '<div style="color: #fa709a;">❌ Amount cannot exceed 50 Cr!</div>';
+        return;
+      }
+
+      // Get player points
+      const points = playerPoints[selectedPlayer] || 4;
+
+      // Check if player is already sold
+      db.ref("auctions").once("value").then(snapshot => {
+        const auctions = snapshot.val() || {};
+        if (auctions[selectedPlayer]) {
+          showNotification(`Player "${selectedPlayer}" is already sold!`, "error");
+          auctionResultDiv.innerHTML = `<div style="color: #fa709a;">❌ Player "${selectedPlayer}" is already sold!</div>`;
+          return;
+        }
+
+        // Add to auction
+        const auctionData = {
+          player: selectedPlayer,
+          price: amount,
+          team: selectedUser,
+          points: points,
+          timestamp: Date.now()
+        };
+
+        // Save to Firebase auctions
+        db.ref(`auctions/${selectedPlayer}`).set(auctionData).then(() => {
+          // Update team data
+          db.ref(`teams/${selectedUser}`).once("value").then(teamSnapshot => {
+            const teamData = teamSnapshot.val() || { players: [], totalSpent: 0, remainingBudget: 150 };
+            
+            // Add player to team
+            const newPlayer = {
+              player: selectedPlayer,
+              price: amount,
+              points: points
+            };
+            
+            teamData.players = teamData.players || [];
+            teamData.players.push(newPlayer);
+            teamData.totalSpent = (teamData.totalSpent || 0) + amount;
+            teamData.remainingBudget = 150 - teamData.totalSpent;
+
+            // Update team in Firebase
+            db.ref(`teams/${selectedUser}`).set(teamData).then(() => {
+              // Send auction message
+              db.ref("auctionMessages").push({
+                message: `${selectedUser} bought ${selectedPlayer} for ₹${amount} Cr!`,
+                totalPoints: teamData.players.reduce((sum, p) => sum + (p.points || 0), 0),
+                timestamp: Date.now()
+              });
+
+              // Success feedback
+              const successMessage = `✅ ${selectedUser} successfully bought ${selectedPlayer} for ₹${amount} Cr!`;
+              showNotification(successMessage, "success");
+              auctionResultDiv.innerHTML = `<div style="color: #4facfe;">${successMessage}</div>`;
+              
+              // Clear form
+              document.getElementById("selectedPlayer").value = "";
+              document.getElementById("auctionUser").value = "";
+              document.getElementById("auctionAmount").value = "";
+              
+              // Create particle effect
+              createParticleEffect();
+            });
+          });
+        }).catch(error => {
+          console.error("Error adding to auction:", error);
+          showNotification("Error adding to auction. Please try again.", "error");
+          auctionResultDiv.innerHTML = '<div style="color: #fa709a;">❌ Error adding to auction. Please try again.</div>';
+        });
+      });
+    }
+
+    // Add hover effects to player cards
+    document.addEventListener('DOMContentLoaded', function() {
+      const playerCards = document.querySelectorAll('.player-card');
+      playerCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-10px) scale(1.02)';
+          this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+          this.style.boxShadow = '0 8px 32px rgba(31, 38, 135, 0.37)';
+        });
+      });
+
+      // Add click functionality to player cards for quick selection
+      playerCards.forEach(card => {
+        card.addEventListener('click', function() {
+          const playerName = this.querySelector('h2').textContent.split('. ')[1];
+          const selectElement = document.getElementById('selectedPlayer');
+          
+          // Find and select the player in dropdown
+          for (let option of selectElement.options) {
+            if (option.value === playerName) {
+              selectElement.value = playerName;
+              break;
+            }
+          }
+          
+          // Highlight the selected card
+          playerCards.forEach(c => c.style.border = '1px solid var(--glass-border)');
+          this.style.border = '2px solid #4facfe';
+          
+          showNotification(`Selected: ${playerName}`, "info");
+        });
+      });
+    });
+  </script>
+</body>
+</html>

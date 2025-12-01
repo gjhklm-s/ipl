@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Selection</title>
+    <script type="module">
+      // Import Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onChildAdded,
+        set,
+        get,
+        update,
+        remove,
+        onValue,
+        push,
+      } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+        authDomain: "happy-70335.firebaseapp.com",
+        databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+        projectId: "happy-70335",
+        storageBucket: "happy-70335.firebasestorage.app",
+        messagingSenderId: "471068695841",
+        appId: "1:471068695841:web:583eccd3c92b236d123260",
+        measurementId: "G-SD1EHGBRP9",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      console.log("✅ Firebase Initialized");
+
+      // Firebase References
+      const currentBidRef = ref(db, "auction/currentBid");
+      const totalBidRef = ref(db, "auction/totalBid");
+      const lastBidderRef = ref(db, "auction/lastBidder");
+      const users = [
+        "Karan",
+        "Selva",
+        "Koushik",
+        "Manoj",
+        "Avenash",
+        "Shanio",
+        "Rohit",
+        "Abdul",
+        "Aswath",
+        "Varshan",
+        "rrk",
+        "Gokul",
+        "Jerwin",
+      ];
+      let activeTimers = {};
+      let selectedUser = users[0];
+
+      // Function to update UI
+      function updateUI() {
+        users.forEach((user) => {
+          const el = document.getElementById(user);
+          if (el) el.style.display = user === selectedUser ? "block" : "none";
+        });
+      }
+
+      // Select user
+      function selectUser(user) {
+        selectedUser = user;
+        updateUI();
+      }
+
+      // Start Timer for User
+      function startUserTimer(user) {
+        if (activeTimers[user]) return;
+
+        let timeLeft = [5, 3, 5, 2, 5][Math.floor(Math.random() * 5)];
+        document.getElementById(`${user}-status`).textContent = `⏳ Waiting... | ${timeLeft}s`;
+
+        activeTimers[user] = setInterval(() => {
+          timeLeft--;
+          document.getElementById(`${user}-status`).textContent = `⏳ Waiting... | ${timeLeft}s`;
+
+          if (timeLeft === 0) {
+            clearInterval(activeTimers[user]);
+            delete activeTimers[user];
+            document.getElementById(`${user}-status`).textContent = "✅ Ready to Bid!";
+          }
+        }, 1000);
+      }
+
+      // Place Bid
+      function placeBid(user, amount) {
+        if (activeTimers[user]) {
+          alert("⏳ Wait until your timer finishes!");
+          return;
+        }
+
+        // Update UI for bidding
+        document.getElementById(
+          `${user}-status`
+        ).textContent = `✅ Bid Placed: ${amount} Cr!`;
+
+        // Get total bid from Firebase, update and set new values
+        get(totalBidRef)
+          .then((snapshot) => {
+            let totalBid = snapshot.exists() ? parseFloat(snapshot.val()) : 0;
+            let newTotalBid = (totalBid + amount).toFixed(1); // Fix floating point issue
+            newTotalBid = parseFloat(newTotalBid); // Convert back to number
+
+            // Update Firebase values
+            set(currentBidRef, amount);
+            set(totalBidRef, newTotalBid);
+            set(lastBidderRef, user);
+          })
+          .catch((error) =>
+            console.error("❌ Error fetching total bid:", error)
+          );
+
+        // Start user cooldown timer
+        startUserTimer(user);
+      }
+
+      // Listen for real-time updates
+      onValue(currentBidRef, (snapshot) => {
+        const bidValue = snapshot.exists()
+          ? parseFloat(snapshot.val()).toFixed(1)
+          : "0.0";
+        document.getElementById("currentBid").textContent = bidValue + " Cr";
+      });
+
+      onValue(totalBidRef, (snapshot) => {
+        const totalValue = snapshot.exists()
+          ? parseFloat(snapshot.val()).toFixed(1)
+          : "0.0";
+        document.getElementById("totalBid").textContent = totalValue + " Cr";
+      });
+
+      onValue(lastBidderRef, (snapshot) => {
+        const bidder = snapshot.exists() ? snapshot.val() : "None";
+        document.getElementById("lastBidder").textContent = bidder;
+      });
+
+      // Start timers initially
+      users.forEach((user) => startUserTimer(user));
+
+      // Update UI on load
+      window.onload = updateUI;
+
+      // Expose functions globally
+      window.placeBid = placeBid;
+      window.selectUser = selectUser;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Array of 10 different passwords
+        const adminPasswords = ["our", "s", "play", "183"];
+
+        // Reference for tracking password index in Firebase
+        const passwordIndexRef = ref(db, "auction/passwordIndex");
+
+        document
+          .getElementById("soldButton")
+          .addEventListener("click", async function () {
+            try {
+              // Get the current password index from Firebase
+              const passwordIndexSnapshot = await get(passwordIndexRef);
+              let passwordIndex = passwordIndexSnapshot.exists()
+                ? passwordIndexSnapshot.val()
+                : 0;
+
+              // Get the current password based on the index
+              const correctPassword = adminPasswords[passwordIndex];
+
+              // Ask for password input
+              const enteredPassword = prompt(
+                "Enter the password to confirm the sale:"
+              );
+
+              // Validate the entered password
+              if (enteredPassword !== correctPassword) {
+                alert("❌ Incorrect Password. Try again!");
+                return;
+              }
+
+              console.log("🔥 Fetching last bid details before resetting...");
+
+              // Get the last bidder and total bid BEFORE resetting
+              const lastBidderSnapshot = await get(lastBidderRef);
+              const totalBidSnapshot = await get(totalBidRef);
+
+              const lastBidder = lastBidderSnapshot.exists()
+                ? lastBidderSnapshot.val()
+                : "Unknown";
+              const totalBid = totalBidSnapshot.exists()
+                ? parseFloat(totalBidSnapshot.val()).toFixed(1)
+                : "0.0";
+
+              // **Show the alert BEFORE resetting**
+              alert(`🎉 ${lastBidder} bought the player for ${totalBid} Cr!
+        To see the playername enter password and click show button.`);
+
+              console.log(
+                `✅ ${lastBidder} bought the player for ${totalBid} Cr`
+              );
+
+              // Reset auction values in Firebase
+              await set(currentBidRef, 0);
+              await set(totalBidRef, 0);
+              await set(lastBidderRef, "None");
+
+              console.log("✅ Auction reset successfully!");
+
+              // Update UI
+              document.getElementById("currentBid").textContent = "0.0 Cr";
+              document.getElementById("totalBid").textContent = "0.0 Cr";
+              document.getElementById("lastBidder").textContent = "None";
+
+              // **Move to the next password**
+              passwordIndex = (passwordIndex + 1) % adminPasswords.length; // Loop back to start when reaching the end
+              await set(passwordIndexRef, passwordIndex);
+            } catch (error) {
+              console.error("❌ Error resetting auction:", error);
+              alert("⚠ Failed to reset auction. Check console for details.");
+            }
+          });
+      });
+    </script>
+    <style>
+      /* General Body Styles */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 50%,
+          #f093fb 100%
+        );
+        color: white;
+        min-height: 100vh;
+      }
+
+      /* Container Styling */
+      .container {
+        width: 90%;
+        max-width: 500px;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.2),
+          rgba(118, 75, 162, 0.2)
+        );
+        backdrop-filter: blur(15px);
+        margin: 20px auto;
+        padding: 25px;
+        border-radius: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+      }
+
+      .container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Button Styling */
+      button {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0px 4px 15px rgba(245, 87, 108, 0.4);
+        margin: 5px;
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, #f5576c, #f093fb);
+        transform: scale(1.08);
+        box-shadow: 0px 6px 20px rgba(245, 87, 108, 0.6);
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      /* Password Input */
+      input[type="password"] {
+        padding: 12px;
+        width: 80%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+      }
+
+      input[type="password"]:focus {
+        outline: none;
+        border-color: #f5576c;
+        box-shadow: 0px 0px 10px rgba(245, 87, 108, 0.5);
+      }
+
+      /* Modal Styling */
+      #imageModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        animation: fadeIn 0.3s ease;
+        -webkit-overflow-scrolling: touch;
+        overflow: auto; /* allow page scroll behind modal if needed on small screens */
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-content {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        padding: 24px 30px 20px 30px;
+        border-radius: 16px;
+        text-align: center;
+        width: 92%;
+        max-width: 800px;
+        max-height: calc(100vh - 60px);
+        box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.5);
+        animation: slideIn 0.4s ease;
+        overflow: auto; /* allow internal scrolling when image is large */
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translate(-50%, -60%);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, -50%);
+          opacity: 1;
+        }
+      }
+
+      /* Image inside Modal */
+      .modal-content img {
+        display: block;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        border-radius: 8px;
+        border: 3px solid #f5576c;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        margin: 12px auto;
+      }
+
+      /* Player Info Styling (Multiline Text Above Image) */
+      .player-info {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: left;
+        white-space: pre-line;
+        box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Close Button */
+      .close-btn {
+        background: linear-gradient(135deg, #eb3349, #f45c43);
+        color: white;
+        border: none;
+        padding: 10px 14px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.18s ease-in-out;
+        box-shadow: 0px 4px 12px rgba(235, 51, 73, 0.35);
+        position: absolute; /* keep close visible */
+        top: 12px;
+        right: 12px;
+        z-index: 20;
+      }
+
+      .close-btn:hover {
+        background: linear-gradient(135deg, #f45c43, #eb3349);
+        transform: translateY(-2px);
+      }
+
+      /* Player Info Styling (Above Image) */
+      #modalText {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3436;
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        border-radius: 15px;
+        padding: 18px;
+        margin-bottom: 15px;
+        text-align: center;
+        display: block;
+        white-space: pre-line;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Modal Title Styling */
+      #modalTitle {
+        font-size: 26px;
+        font-weight: bold;
+        color: #2d3436;
+        text-align: center;
+        margin-bottom: 15px;
+        display: block;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      h2,
+      h3 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      ul {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Welcome to Hide and Seek</h2>
+      <p>Click "Next Player" to reveal a player.</p>
+    </div>
+
+    <div class="container">
+      <h2>Rules</h2>
+      <ul style="text-align: left; display: inline-block">
+        <li>Only the outline of the player will be visible.</li>
+        <li>Find the player with the given Clue.</li>
+        <li>From each set Compulsorly all must take one player.</li>
+        <li>
+          To see the original player enter the password and click show player.
+        </li>
+        <li>Bid for the player.</li>
+      </ul>
+    </div>
+
+    <!-- Regular Navigation (No Password) -->
+    <div class="container">
+      <h3>Player Set-1</h3>
+      <button onclick="previousPlayerNoPassword()">Previous Player</button>
+      <button onclick="nextPlayerNoPassword()">Next Player</button>
+    </div>
+
+    <!-- Original Player Set-1 removed per request -->
+
+    <!-- Image Modal -->
+    <div id="imageModal">
+      <div class="modal-content">
+        <h3 id="modalTitle">Find the Player and Start bidding</h3>
+        <p id="modalText" class="player-info">Original Image</p>
+        <!-- Text above image -->
+        <img id="modalImage" src="" alt="Player Image" />
+        <br />
+        <div id="modalPasswordSection" style="margin: 15px 0; display: none">
+          <input
+            type="password"
+            id="modalPassword"
+            placeholder="Enter Password"
+            style="
+              padding: 10px;
+              width: 70%;
+              border-radius: 8px;
+              border: 1px solid #ccc;
+            "
+          />
+          <br /><br />
+          <button
+            onclick="revealOriginalInModal()"
+            style="
+              background: linear-gradient(135deg, #4caf50, #45a049);
+              padding: 10px 20px;
+            "
+          >
+            Show Original Player
+          </button>
+        </div>
+        <div id="modalNextSection" style="margin: 15px 0; display: none">
+          <button
+            onclick="nextPlayerFromModal()"
+            style="
+              background: linear-gradient(135deg, #2196f3, #1976d2);
+              padding: 10px 20px;
+            "
+          >
+            Next Player
+          </button>
+        </div>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+    <div class="container">
+      <h3>Player Set-2</h3>
+      <button onclick="previousPlayerGroup2()">Previous Player</button>
+      <button onclick="nextPlayerGroup2()">Next Player</button>
+    </div>
+
+    <!-- Original Player Set-2 removed per request -->
+
+    <div class="container">
+      <h1>Auction Bidding System</h1>
+      <h2>Total Bid: <span id="totalBid">0.0 Cr</span></h2>
+      <h2>Current Bid: <span id="currentBid">0.0 Cr</span></h2>
+
+      <h2>Last Bidder: <span id="lastBidder">None</span></h2>
+
+      <div class="bid-container">
+        <!-- Users -->
+        <div id="Karan" class="user-section">
+          <h3>Karan: <span id="Karan-status">✅ Ready to Bid</span></h3>
+          <div id="Karan-buttons" class="bid-buttons">
+            <button onclick="placeBid('Karan', 0.2)">20L</button>
+            <button onclick="placeBid('Karan', 0.5)">50L</button>
+            <button onclick="placeBid('Karan', 1)">1Cr</button>
+            <button onclick="placeBid('Karan', 5)">5Cr</button>
+          </div>
+        </div>
+
+        <div id="Selva" class="user-section">
+          <h3>Selva: <span id="Selva-status">✅ Ready to Bid</span></h3>
+          <div id="Selva-buttons" class="bid-buttons">
+            <button onclick="placeBid('Selva', 0.2)">20L</button>
+            <button onclick="placeBid('Selva', 0.5)">50L</button>
+            <button onclick="placeBid('Selva', 1)">1Cr</button>
+            <button onclick="placeBid('Selva', 5)">5Cr</button>
+          </div>
+        </div>
+
+        <div id="Koushik" class="user-section">
+          <h3>Koushik: <span id="Koushik-status">✅ Ready to Bid</span></h3>
+          <div id="Koushik-buttons" class="bid-buttons">
+            <button onclick="placeBid('Koushik', 0.2)">20L</button>
+            <button onclick="placeBid('Koushik', 0.5)">50L</button>
+            <button onclick="placeBid('Koushik', 1)">1Cr</button>
+            <button onclick="placeBid('Koushik', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Manoj" class="user-section">
+          <h3>Manoj: <span id="Manoj-status">✅ Ready to Bid</span></h3>
+          <div id="Manoj-buttons" class="bid-buttons">
+            <button onclick="placeBid('Manoj', 0.2)">20L</button>
+            <button onclick="placeBid('Manoj', 0.5)">50L</button>
+            <button onclick="placeBid('Manoj', 1)">1Cr</button>
+            <button onclick="placeBid('Manoj', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Avenash" class="user-section">
+          <h3>Avenash: <span id="Avenash-status">✅ Ready to Bid</span></h3>
+          <div id="Avenash-buttons" class="bid-buttons">
+            <button onclick="placeBid('Avenash', 0.2)">20L</button>
+            <button onclick="placeBid('Avenash', 0.5)">50L</button>
+            <button onclick="placeBid('Avenash', 1)">1Cr</button>
+            <button onclick="placeBid('Avenash', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Shanio" class="user-section">
+          <h3>Shanio: <span id="Shanio-status">✅ Ready to Bid</span></h3>
+          <div id="Shanio-buttons" class="bid-buttons">
+            <button onclick="placeBid('Shanio', 0.2)">20L</button>
+            <button onclick="placeBid('Shanio', 0.5)">50L</button>
+            <button onclick="placeBid('Shanio', 1)">1Cr</button>
+            <button onclick="placeBid('Shanio', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Rohit" class="user-section">
+          <h3>Rohit: <span id="Rohit-status">✅ Ready to Bid</span></h3>
+          <div id="Rohit-buttons" class="bid-buttons">
+            <button onclick="placeBid('Rohit', 0.2)">20L</button>
+            <button onclick="placeBid('Rohit', 0.5)">50L</button>
+            <button onclick="placeBid('Rohit', 1)">1Cr</button>
+            <button onclick="placeBid('Rohit', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Abdul" class="user-section">
+          <h3>Abdul: <span id="Abdul-status">✅ Ready to Bid</span></h3>
+          <div id="Abdul-buttons" class="bid-buttons">
+            <button onclick="placeBid('Abdul', 0.2)">20L</button>
+            <button onclick="placeBid('Abdul', 0.5)">50L</button>
+            <button onclick="placeBid('Abdul', 1)">1Cr</button>
+            <button onclick="placeBid('Abdul', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Aswath" class="user-section">
+          <h3>Aswath: <span id="Aswath-status">✅ Ready to Bid</span></h3>
+          <div id="Aswath-buttons" class="bid-buttons">
+            <button onclick="placeBid('Aswath', 0.2)">20L</button>
+            <button onclick="placeBid('Aswath', 0.5)">50L</button>
+            <button onclick="placeBid('Aswath', 1)">1Cr</button>
+            <button onclick="placeBid('Aswath', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Varshan" class="user-section">
+          <h3>Varshan: <span id="Varshan-status">✅ Ready to Bid</span></h3>
+          <div id="Varshan-buttons" class="bid-buttons">
+            <button onclick="placeBid('Varshan', 0.2)">20L</button>
+            <button onclick="placeBid('Varshan', 0.5)">50L</button>
+            <button onclick="placeBid('Varshan', 1)">1Cr</button>
+            <button onclick="placeBid('Varshan', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="rrk" class="user-section">
+          <h3>rrk: <span id="rrk-status">✅ Ready to Bid</span></h3>
+          <div id="rrk-buttons" class="bid-buttons">
+            <button onclick="placeBid('rrk', 0.2)">20L</button>
+            <button onclick="placeBid('rrk', 0.5)">50L</button>
+            <button onclick="placeBid('rrk', 1)">1Cr</button>
+            <button onclick="placeBid('rrk', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Gokul" class="user-section">
+          <h3>Gokul: <span id="Gokul-status">✅ Ready to Bid</span></h3>
+          <div id="Gokul-buttons" class="bid-buttons">
+            <button onclick="placeBid('Gokul', 0.2)">20L</button>
+            <button onclick="placeBid('Gokul', 0.5)">50L</button>
+            <button onclick="placeBid('Gokul', 1)">1Cr</button>
+            <button onclick="placeBid('Gokul', 5)">5Cr</button>
+          </div>
+        </div>
+        <div id="Jerwin" class="user-section">
+          <h3>Jerwin: <span id="Jerwin-status">✅ Ready to Bid</span></h3>
+          <div id="Jerwin-buttons" class="bid-buttons">
+            <button onclick="placeBid('Jerwin', 0.2)">20L</button>
+            <button onclick="placeBid('Jerwin', 0.5)">50L</button>
+            <button onclick="placeBid('Jerwin', 1)">1Cr</button>
+            <button onclick="placeBid('Jerwin', 5)">5Cr</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-selector">
+        <h3>Select Username</h3>
+        <select onchange="selectUser(this.value)">
+          <option value="">Select</option>
+          <option value="Karan">Karan</option>
+          <option value="Selva">Selva</option>
+          <option value="Koushik">Koushik</option>
+          <option value="Manoj">Manoj</option>
+          <option value="Avenash">Avenash</option>
+          <option value="Shanio">Shanio</option>
+          <option value="Rohit">Rohit</option>
+          <option value="Abdul">Abdul</option>
+
+          <option value="Aswath">Aswath</option>
+          <option value="Varshan">Varshan</option>
+          <option value="rrk">rrk</option>
+          <option value="Gokul">Gokul</option>
+          <option value="Jerwin">Jerwin</option>
+        </select>
+      </div>
+    </div>
+    <button id="soldButton">Sold</button>
+
+    <!-- Player Registration Section -->
+    <div
+      class="container"
+      style="
+        margin-top: 30px;
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.2),
+          rgba(56, 142, 60, 0.2)
+        );
+      "
+    >
+      <h2>Register Player to Table</h2>
+      <p>Select a player and enter the amount to add to the table</p>
+
+      <div style="margin: 20px 0">
+        <label
+          for="playerSelect"
+          style="display: block; margin-bottom: 10px; font-weight: bold"
+          >Select Player:</label
+        >
+        <select
+          id="playerSelect"
+          style="
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+          "
+        >
+          <option value="">-- Choose a Player --</option>
+          <option value="Karan">Karan</option>
+          <option value="Selva">Selva</option>
+          <option value="Koushik">Koushik</option>
+          <option value="Manoj">Manoj</option>
+          <option value="Avenash">Avenash</option>
+          <option value="Shanio">Shanio</option>
+          <option value="Rohit">Rohit</option>
+          <option value="Abdul">Abdul</option>
+          <option value="Aswath">Aswath</option>
+          <option value="Varshan">Varshan</option>
+          <option value="rrk">rrk</option>
+          <option value="Gokul">Gokul</option>
+          <option value="Jerwin">Jerwin</option>
+        </select>
+      </div>
+
+      <div style="margin: 20px 0">
+        <label
+          for="amountInput"
+          style="display: block; margin-bottom: 10px; font-weight: bold"
+          >Enter Amount (in Cr):</label
+        >
+        <input
+          type="number"
+          id="amountInput"
+          placeholder="0.0"
+          step="0.1"
+          min="0"
+          style="
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+          "
+        />
+      </div>
+
+      <button
+        onclick="addPlayerToTable()"
+        style="
+          background: linear-gradient(135deg, #4caf50, #45a049);
+          padding: 12px 30px;
+          font-size: 16px;
+          font-weight: bold;
+          margin: 10px 5px;
+        "
+      >
+        Add to Table
+      </button>
+      <button
+        onclick="clearPlayerForm()"
+        style="
+          background: linear-gradient(135deg, #f44336, #da190b);
+          padding: 12px 30px;
+          font-size: 16px;
+          font-weight: bold;
+          margin: 10px 5px;
+        "
+      >
+        Clear
+      </button>
+    </div>
+
+    <br />
+    <br />
+
+    <button
+      onclick="extPage()"
+      style="
+        background-color: red;
+        color: white;
+        padding: 12px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-bottom: 30px;
+      "
+    >
+      Main Page
+    </button>
+    <script>
+      let players = [
+        {
+          image: "jos.png",
+          password: "p",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/jos_silhouette.png",
+          regSentence: `The explosive wicketkeeper-batsman!  
+                              Role: WK Batsman  
+                              Nation: England  
+                              Style: RHB`,
+          adminSentence: ` Jos Buttler is the player
+                                `,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201626.png",
+          password: "pa",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/deep11.png",
+          regSentence: `
+                              Role: Fast Bowling Batsman 
+                              Nation: Afganisthan,India,England,Newzland 
+                              Style: RHB`,
+          adminSentence: `The player is Deepak chachar`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200239.png",
+          password: "pas",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/gowthan11.png",
+          regSentence: `The ---------  ------- allrounder  
+                              Role: off spinning batsman  
+                              Nation: England ,australia,India 
+                              Style: RHB`,
+          adminSentence: `The player is Krishnapa Gowtham`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193027.png",
+          password: "pass",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/sunil11.png",
+          regSentence: ` All Rounder
+                              Role:spinner and batsmam
+                              Nation: England,West Indies,Newzland 
+                              Style: LHB`,
+          adminSentence: `The player is sunil Narin`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201334.png",
+          password: "passi",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/tnat11.png",
+          regSentence: ` 
+                              Role: Bowler  
+                              Nation: England,India,Auatralia  
+                              Style: --`,
+          adminSentence: `The player is Natarajan`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183648.png",
+          password: "passin",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/war11.png",
+          regSentence: `  
+                              Role: Batsman  
+                              Nation: England,Australia,Srilanka 
+                              Style: LHB`,
+          adminSentence: `The player is David Warner`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193524.png",
+          password: "passing",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/yer11.png",
+          regSentence: ` 
+                              Role: Right arm medium and Batsman  
+                              Nation: England,australia,India 
+                              Style: LHB`,
+          adminSentence: `The player is Venkatash Iyer`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201314.png",
+          password: "passing1",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/siraj11.png",
+          regSentence: `  
+                              Role: Right arm fast  
+                              Nation: England ,India,Afganisthan 
+                              Style: --`,
+          adminSentence: `The player is Mohamadh Siraj`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201013.png",
+          password: "pass2",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/pathi11.png",
+          regSentence: ` 
+                              Role: Right arm fast  
+                              Nation: England ,India,Afganisthan,Srilanka
+                              Style: --`,
+          adminSentence: `The player is Pathirana`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195806.png",
+          password: "pass3",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/ravi11.png",
+          regSentence: `---- ------- 
+                              Role: Leg spinner 
+                              Nation: England ,India,Afganisthan 
+                              Style: --`,
+          adminSentence: `The player is Ravi Bishnoi`,
+        },
+      ];
+      let playersGroup2 = [
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183745.png",
+          password: "a",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/daral.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Daral Mitchal. `,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141736.png",
+          password: "s",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/ks.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Ks Barath`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200014.png",
+          password: "w",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/markanda.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Mayank Markandaya`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204108.png",
+          password: "aswa",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/mayank.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Mayank Agarwal `,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193422.png",
+          password: "t",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/tewata.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Rahul Thewatiya`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185037.png",
+          password: "h",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/tim.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Tim David `,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184945.png",
+          password: "b",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/head.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Travis Head`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195905.png",
+          password: "r",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/rahul.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Rahul chachar`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183808.png",
+          password: "o",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-17.215258.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Riswan`,
+        },
+        {
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185434.png",
+          password: "hi",
+          regImage:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/rinku.png",
+          regSentence: `Vijay sankar,Daral Mitchal,Ks Barath, virat,Mayank Markandaya,Mayank Agarwal,Chachal,Rahul Thewatiya,Tim David,Markram,Travis Head,Strac,Rahul chachar,Rinku Singh,Riswan`,
+          adminSentence: `The player is Rinku Singh`,
+        },
+      ];
+      let currentIndexAdmin = -1;
+      let currentIndexRegular = -1;
+      let indexGroup1 = -1;
+      let indexGroup2 = -1;
+      let currentGroup = 1; // Track which group is currently active (1 or 2)
+      let originalRevealed = false; // Track if original player is revealed
+
+      function showModal(imageSrc, text, showPasswordSection = false) {
+        document.getElementById("modalImage").src = imageSrc;
+        document.getElementById("modalText").innerText = text;
+        document.getElementById("imageModal").style.display = "block";
+
+        // Show/hide password section
+        document.getElementById("modalPasswordSection").style.display =
+          showPasswordSection ? "block" : "none";
+        document.getElementById("modalNextSection").style.display = "none";
+        document.getElementById("modalPassword").value = ""; // Clear password field
+        originalRevealed = false;
+      }
+
+      function closeModal() {
+        document.getElementById("imageModal").style.display = "none";
+        document.getElementById("modalPasswordSection").style.display = "none";
+        document.getElementById("modalNextSection").style.display = "none";
+        originalRevealed = false;
+      }
+
+      function revealOriginalInModal() {
+        let enteredPassword = document.getElementById("modalPassword").value;
+        let found = null;
+        if (currentGroup === 1) {
+          found = players.find((player) => player.password === enteredPassword);
+        } else {
+          found = playersGroup2.find((player) => player.password === enteredPassword);
+        }
+
+        if (found) {
+          // Show original player
+          document.getElementById("modalImage").src = found.image;
+          document.getElementById("modalText").innerText = found.adminSentence;
+          document.getElementById("modalPasswordSection").style.display = "none";
+          document.getElementById("modalNextSection").style.display = "block";
+          originalRevealed = true;
+        } else {
+          alert("Incorrect Password! Try again.");
+        }
+      }
+
+      function nextPlayerFromModal() {
+        // Close current modal and move to next player
+        closeModal();
+        if (currentGroup === 1) {
+          nextPlayerNoPassword();
+        } else {
+          nextPlayerGroup2();
+        }
+      }
+
+      function checkPassword() {
+        let enteredPassword = document.getElementById("adminPassword").value;
+        let found = players.find(
+          (player) => player.password === enteredPassword
+        );
+
+        if (found) {
+          showModal(found.image, found.adminSentence);
+          alert("Password correct! Player revealed.");
+        } else {
+          alert("Incorrect Password! Try again.");
+        }
+      }
+
+      function nextPlayerNoPassword() {
+        currentGroup = 1; // Set active group
+        if (++currentIndexRegular < players.length) {
+          showModal(
+            players[currentIndexRegular].regImage,
+            players[currentIndexRegular].regSentence,
+            true
+          );
+        } else alert("No more players!");
+      }
+
+      function previousPlayerNoPassword() {
+        currentGroup = 1; // Set active group
+        if (--currentIndexRegular >= 0) {
+          showModal(
+            players[currentIndexRegular].regImage,
+            players[currentIndexRegular].regSentence,
+            true
+          );
+        } else alert("This is the first player.");
+      }
+
+      function nextPlayerGroup2() {
+        currentGroup = 2; // Set active group
+        if (++indexGroup2 < playersGroup2.length) {
+          showModal(
+            playersGroup2[indexGroup2].regImage,
+            playersGroup2[indexGroup2].regSentence,
+            true
+          );
+        } else {
+          alert("No more players in Group 2!");
+          indexGroup2--;
+        }
+      }
+
+      function previousPlayerGroup2() {
+        currentGroup = 2; // Set active group
+        if (--indexGroup2 >= 0) {
+          showModal(
+            playersGroup2[indexGroup2].regImage,
+            playersGroup2[indexGroup2].regSentence,
+            true
+          );
+        } else {
+          alert("This is the first player in Group 2.");
+          indexGroup2++;
+        }
+      }
+
+      function checkPasswordGroup2() {
+        let enteredPassword = document.getElementById("adminPassword2").value;
+        let found = playersGroup2.find((player) => player.password === enteredPassword);
+        if (found) {
+          showModal(found.image, found.adminSentence);
+          alert("Password correct! Player revealed.");
+        } else {
+          alert("Incorrect Password! Try again.");
+        }
+      }
+
+
+      function extPage() {
+        window.location.href = "n2.html"; // Replace with your actual page URL
+      }
+
+      
+
+      // ========== PLAYER TABLE FUNCTIONS ==========
+      // Add player to the table in main-1.html
+      function addPlayerToTable() {
+        const playerSelect = document.getElementById("playerSelect").value;
+        const amountInput = document.getElementById("amountInput").value;
+
+        if (!playerSelect) {
+          alert("❌ Please select a player!");
+          return;
+        }
+
+        if (!amountInput || parseFloat(amountInput) < 0) {
+          alert("❌ Please enter a valid amount!");
+          return;
+        }
+
+        const amount = parseFloat(amountInput);
+
+        // Store player data in Firebase
+        const playerDataRef = ref(db, `players/${playerSelect}`);
+        set(playerDataRef, {
+          name: playerSelect,
+          amount: amount,
+          timestamp: new Date().toISOString(),
+        })
+          .then(() => {
+            alert(`✅ ${playerSelect} added with amount ${amount} Cr!`);
+            clearPlayerForm();
+          })
+          .catch((error) => {
+            console.error("❌ Error adding player:", error);
+            alert("❌ Failed to add player. Check console for details.");
+          });
+      }
+
+      // Clear the player form
+      function clearPlayerForm() {
+        document.getElementById("playerSelect").value = "";
+        document.getElementById("amountInput").value = "";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find Who? — Round 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+      :root{
+        --bg-1: #0f172a;
+        --bg-2: #0ea5a4;
+        --accent: #7c3aed;
+        --muted: #94a3b8;
+        --card: rgba(255,255,255,0.06);
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+
+      body{
+        background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent),
+                    linear-gradient(180deg,#071029 0%, #081126 40%, #042f2f 100%);
+        color: #e6eef6;
+        min-height:100vh;
+        display:flex;flex-direction:column;align-items:center;padding:28px;
+      }
+
+      .stage{
+        width:100%;max-width:1100px;display:grid;grid-template-columns:420px 1fr;gap:28px;align-items:center
+      }
+
+      .panel{
+        background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+        border-radius:18px;padding:22px;box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+        border:1px solid rgba(255,255,255,0.04);
+      }
+
+      .left .title{font-size:20px;font-weight:700;color:var(--accent);margin:6px 0 12px}
+      .desc{color:var(--muted);font-size:14px;margin-bottom:12px}
+
+      .preview{
+        height:420px;border-radius:14px;overflow:hidden;position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center
+      }
+
+      .silhouette{
+        /* Keep aspect ratio and avoid stretching */
+        width:100%;
+        height:100%;
+        max-width:100%;
+        max-height:100%;
+        object-fit:contain;
+        filter:grayscale(40%) contrast(0.9) brightness(0.8);
+        transform:scale(1.02);
+        transition:transform .6s cubic-bezier(.2,.9,.3,1),filter .6s;
+        background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.06));
+      }
+
+      .preview .overlay{
+        position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,6,23,0.05),rgba(2,6,23,0.35));display:flex;flex-direction:column;justify-content:flex-end;padding:18px
+      }
+
+      .player-info{backdrop-filter: blur(6px);background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:10px;padding:10px 12px}
+      .player-info h2{margin:0;font-size:18px;color:#fff}
+      .player-info p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+      .controls{display:flex;justify-content:space-between;margin-top:12px;gap:12px}
+      .btn{background:transparent;border:0;padding:10px 14px;border-radius:10px;color:#dbeafe;cursor:pointer;font-weight:700;letter-spacing:0.2px}
+      .btn:hover{transform:translateY(-3px)}
+
+      .btn-ghost{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.04)}
+      .btn-primary{background:linear-gradient(90deg,var(--accent),#5eead4);color:#02111a;padding:12px 16px;border-radius:12px}
+
+      .nav-buttons{display:flex;gap:10px;align-items:center}
+      .nav-buttons .arrow{width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;cursor:pointer}
+      .nav-buttons .arrow svg{width:18px;height:18px;fill:transparent;stroke:#cfe9f2;stroke-width:2}
+
+      .right{padding-left:6px}
+      .grid-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+      .card{
+        background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(255,255,255,0.03)
+      }
+      .card img{width:100%;height:80px;object-fit:cover;border-radius:8px;opacity:.95}
+      .card small{color:var(--muted)}
+
+      /* Modal */
+      .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,6,23,0.45),rgba(2,6,23,0.8));z-index:60;padding:20px;overflow:auto;-webkit-overflow-scrolling:touch}
+      .modal{width:min(1100px,95%);max-height:calc(100vh - 40px);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:18px;display:flex;gap:16px;align-items:stretch;overflow:hidden}
+      .modal .imageWrap{flex:1;overflow:auto;border-radius:10px;padding:6px;max-height:calc(100vh - 100px);-webkit-overflow-scrolling:touch}
+      /* allow the image to be larger than container so imageWrap provides scrollbars */
+      .modal .imageWrap img{display:block;max-width:none;max-height:none;width:auto;height:auto;border-radius:8px;margin:0 auto}
+      .modal .meta{width:360px;padding:8px;color:var(--muted);overflow:auto;max-height:calc(100vh - 120px);-webkit-overflow-scrolling:touch}
+
+      /* small screens */
+      @media (max-width:900px){
+        .stage{grid-template-columns:1fr;}
+        .right .grid-cards{grid-template-columns:repeat(2,1fr)}
+      }
+    </style>
+  </head>
+  <body>
+    <div style="width:100%;max-width:1200px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+        <div style="flex:1">
+          <h1 style="margin:0;color:var(--accent);font-size:28px">Find Who? — Round 5</h1>
+          <p style="margin:6px 0 0;color:var(--muted)">Guess the player from the silhouette, reveal to confirm. Use arrows or the buttons.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn btn-ghost" onclick="location.href='n2.html'">Main Page</button>
+          <button class="btn btn-primary" onclick="revealCurrent()">Reveal Player</button>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="panel left">
+          <div class="title">Current Player</div>
+          <div class="desc">Click next/previous to browse players. Click Reveal to open the large image.</div>
+
+          <div class="preview" id="preview">
+            <img id="previewImg" class="silhouette" src="https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193540.png" alt="player">
+            <div class="overlay">
+              <div class="player-info">
+                <h2 id="playerName">Player #1</h2>
+                <p id="playerRole">Role: Mystery — Click reveal to know more</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="nav-buttons">
+              <div class="arrow" onclick="prevPlayer()" title="Previous">
+                <svg viewBox="0 0 24 24"><path d="M15 6 L9 12 L15 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="arrow" onclick="nextPlayer()" title="Next">
+                <svg viewBox="0 0 24 24"><path d="M9 6 L15 12 L9 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-ghost" onclick="shufflePlayers()">Shuffle</button>
+              <button class="btn btn-primary" onclick="revealCurrent()">Open</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel right">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-weight:700">Other Players</div>
+            <div style="color:var(--muted);font-size:13px">Quick preview</div>
+          </div>
+
+          <div class="grid-cards" id="thumbGrid">
+            <!-- generated cards -->
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalBackdrop" class="modal-backdrop">
+      <div class="modal">
+        <div class="imageWrap">
+          <img id="modalImage" src="" alt="full"/>
+        </div>
+        <div class="meta">
+          <h3 id="metaName">Player name</h3>
+          <p id="metaDesc">Detailed description will appear here when revealed.</p>
+          <div style="margin-top:18px">
+            <button class="btn btn-primary" onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const playerImages = [
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193540.png',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_490088569_18001456439768695_4525524293351048898_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_491430393_18001350290768695_2259477103484753254_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_491868918_18002653538768695_1537377626173611678_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_494104229_718105027411928_1050521256886679844_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_494194673_718733947349036_8444252273805831546_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_495058932_723979163491181_5023005265842702707_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_495345737_723341460221618_2290953967261833396_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_495459308_725239050031859_1977130515977294903_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_495501638_18003666383768695_6396392288391071777_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_497537237_18004504490768695_134540762528890572_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_498511639_732839742605123_8884648248905144452_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_499008805_18004852319768695_3609647215273893741_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_499934632_736385015583929_4730952259199687634_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_500737441_737286205493810_4518490242979078069_n.jpg',
+        'https://github.com/gjhklm-s/advance/releases/download/qdk/SaveInta.com_502085932_18006357662768695_8591648716050253796_n.jpg'
+      ];
+
+      const playerNames = playerImages.map((_,i)=>`Player #${i+1}`);
+      const playerRoles = playerImages.map((_,i)=>`Role: Mystery`);
+
+      let idx = 0;
+
+      const previewImg = document.getElementById('previewImg');
+      const playerNameEl = document.getElementById('playerName');
+      const playerRoleEl = document.getElementById('playerRole');
+
+      function renderThumbs(){
+        const grid = document.getElementById('thumbGrid');
+        grid.innerHTML='';
+        playerImages.forEach((src,i)=>{
+          const card = document.createElement('div');card.className='card';
+          const img = document.createElement('img');img.src=src;img.alt='thumb';
+          const sm = document.createElement('small');sm.textContent = `#${i+1}`;
+          card.appendChild(img);card.appendChild(sm);
+          card.onclick = ()=>{ idx=i; updatePreview(); revealPulse(); }
+          grid.appendChild(card);
+        })
+      }
+
+      function updatePreview(){
+        const src = playerImages[idx];
+        previewImg.src = src;
+        playerNameEl.textContent = playerNames[idx];
+        playerRoleEl.textContent = playerRoles[idx];
+      }
+
+      function prevPlayer(){ idx = (idx-1+playerImages.length)%playerImages.length; updatePreview(); revealPulse(); }
+      function nextPlayer(){ idx = (idx+1)%playerImages.length; updatePreview(); revealPulse(); }
+      function shufflePlayers(){ idx = Math.floor(Math.random()*playerImages.length); updatePreview(); animateShuffle(); }
+
+      function revealCurrent(){
+        // Password-protected reveal (password is '7')
+        const pw = prompt('Enter password to reveal player:');
+        if (pw === null) return; // user cancelled
+        if (String(pw).trim() !== '7'){
+          alert('❌ Incorrect password. Cannot reveal player.');
+          return;
+        }
+        // Show full image and meta only when password is correct
+        document.getElementById('modalImage').src = playerImages[idx];
+        document.getElementById('metaName').textContent = playerNames[idx];
+        document.getElementById('metaDesc').textContent = `This is ${playerNames[idx]}. More details can be shown here.`;
+        const b = document.getElementById('modalBackdrop'); b.style.display='flex';
+      }
+
+      function closeModal(){ document.getElementById('modalBackdrop').style.display='none'; }
+
+      function revealPulse(){ previewImg.style.filter='grayscale(0%) contrast(1.02) brightness(1)'; previewImg.style.transform='scale(1)'; setTimeout(()=>{previewImg.style.filter='grayscale(40%) contrast(0.9) brightness(0.8)';},700) }
+      function animateShuffle(){ const p = document.getElementById('preview'); p.animate([{transform:'scale(1)'},{transform:'scale(0.98)'},{transform:'scale(1)'}],{duration:420,iterations:1,easing:'cubic-bezier(.2,.9,.3,1)'}); }
+
+      // keyboard support
+      window.addEventListener('keydown',(e)=>{
+        if(e.key==='ArrowRight') nextPlayer();
+        if(e.key==='ArrowLeft') prevPlayer();
+        if(e.key==='Escape') closeModal();
+      })
+
+      // init
+      renderThumbs(); updatePreview();
+    </script>
+  </body>
+</html>

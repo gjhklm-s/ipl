@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced IPL Quiz - Cricket Auction Game</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .quiz-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: white;
+    }
+    
+    .quiz-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .quiz-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    
+    .user-selector {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .user-selector select {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 16px;
+      min-width: 200px;
+    }
+    
+    .user-selector select option {
+      background: #333;
+      color: white;
+    }
+    
+    .timer {
+      text-align: center;
+      font-size: 2rem;
+      color: #ff6b6b;
+      margin-bottom: 20px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .question-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      display: none;
+    }
+    
+    .question-card.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    .question-card h3 {
+      color: #00c6ff;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      line-height: 1.4;
+    }
+    
+    .question-options {
+      display: grid;
+      gap: 10px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .option:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+    
+    .option input[type="radio"] {
+      margin-right: 15px;
+      transform: scale(1.2);
+    }
+    
+    .option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 16px;
+    }
+    
+    .submit-section {
+      text-align: center;
+      margin: 30px 0;
+    }
+    
+    .submit-btn {
+      display: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #2ecc71, #27ae60);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .scoreboard {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    .scoreboard h3 {
+      color: #00c6ff;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .score-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .score-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+    
+    .score-name {
+      font-weight: bold;
+    }
+    
+    .score-value {
+      color: #00c6ff;
+      font-weight: bold;
+    }
+    
+    .navigation {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .navigation .btn {
+      margin: 0 10px;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <h1>🧠 Advanced IPL Quiz</h1>
+      <p>Test your advanced cricket knowledge with these challenging questions!</p>
+    </div>
+    
+    <div class="user-selector">
+      <select id="teamName">
+        <option value="">Select Your Name</option>
+        <option value="Karan">Periyar</option>
+        <option value="Selva">Selva</option>
+        <option value="Koushik">Kanish</option>
+        <option value="Manoj">Manoj</option>
+        <option value="Avenash">Avenash</option>
+        <option value="Shanio">Bathri</option>
+        <option value="Rohit">Rohit</option>
+        <option value="Abdul">Abdul</option>
+        <option value="Aswath">Aswath</option>
+        <option value="Varshan">Varshan</option>
+        <option value="rrk">rrk</option>
+        <option value="Gokul">Gokul</option>
+        <option value="Jerwin">Yswanth</option>
+      </select>
+    </div>
+    
+    <div class="timer" id="timer">Time Left: 10s</div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <form id="quizForm">
+      <!-- Question 11 -->
+      <div class="question-card" id="q11">
+        <h3>11. Which player has won the most IPL MVP (Most Valuable Player) awards?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q11" value="a" id="q11a">
+            <label for="q11a">Shane Watson</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" value="b" id="q11b">
+            <label for="q11b">Andre Russell</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" value="c" id="q11c">
+            <label for="q11c">Sunil Narine</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" value="d" id="q11d">
+            <label for="q11d">Virat Kohli</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 12 -->
+      <div class="question-card" id="q12">
+        <h3>12. Who is the youngest player to play in the IPL?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q12" value="a" id="q12a">
+            <label for="q12a">Sarfaraz Khan</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" value="b" id="q12b">
+            <label for="q12b">Riyan Parag</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" value="c" id="q12c">
+            <label for="q12c">Prayas Ray Barman</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" value="d" id="q12d">
+            <label for="q12d">Rahul Chahar</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 13 -->
+      <div class="question-card" id="q13">
+        <h3>13. Which team was suspended for two seasons (2016–2017)?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q13" value="a" id="q13a">
+            <label for="q13a">Rajasthan Royals</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" value="b" id="q13b">
+            <label for="q13b">Chennai Super Kings</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" value="c" id="q13c">
+            <label for="q13c">Both a and b</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" value="d" id="q13d">
+            <label for="q13d">Delhi Capitals</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 14 -->
+      <div class="question-card" id="q14">
+        <h3>14. Which bowler has the best bowling figures in a single IPL match?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q14" value="a" id="q14a">
+            <label for="q14a">Alzarri Joseph</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q14" value="b" id="q14b">
+            <label for="q14b">Sohail Tanvir</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q14" value="c" id="q14c">
+            <label for="q14c">Adam Zampa</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q14" value="d" id="q14d">
+            <label for="q14d">Anil Kumble</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 15 -->
+      <div class="question-card" id="q15">
+        <h3>15. Who captained Gujarat Titans in their debut season (2022)?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q15" value="a" id="q15a">
+            <label for="q15a">David Miller</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q15" value="b" id="q15b">
+            <label for="q15b">Shubman Gill</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q15" value="c" id="q15c">
+            <label for="q15c">Hardik Pandya</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q15" value="d" id="q15d">
+            <label for="q15d">Rashid Khan</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 16 -->
+      <div class="question-card" id="q16">
+        <h3>16. Which Indian batsman scored 973 runs in a single IPL season?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q16" value="a" id="q16a">
+            <label for="q16a">Rohit Sharma</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q16" value="b" id="q16b">
+            <label for="q16b">Virat Kohli</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q16" value="c" id="q16c">
+            <label for="q16c">KL Rahul</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q16" value="d" id="q16d">
+            <label for="q16d">Suresh Raina</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 17 -->
+      <div class="question-card" id="q17">
+        <h3>17. Who was the first player to be sold in the first-ever IPL auction?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q17" value="a" id="q17a">
+            <label for="q17a">MS Dhoni</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q17" value="b" id="q17b">
+            <label for="q17b">Rahul Dravid</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q17" value="c" id="q17c">
+            <label for="q17c">Shane Warne</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q17" value="d" id="q17d">
+            <label for="q17d">Sachin Tendulkar</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 18 -->
+      <div class="question-card" id="q18">
+        <h3>18. Which franchise has changed its name the most times?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q18" value="a" id="q18a">
+            <label for="q18a">Delhi Capitals</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q18" value="b" id="q18b">
+            <label for="q18b">Punjab Kings</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q18" value="c" id="q18c">
+            <label for="q18c">Sunrisers Hyderabad</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q18" value="d" id="q18d">
+            <label for="q18d">Royal Challengers Bangalore</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 19 -->
+      <div class="question-card" id="q19">
+        <h3>19. Who hit the longest six in IPL history (measured 125m)?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q19" value="a" id="q19a">
+            <label for="q19a">Ben Cutting</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q19" value="b" id="q19b">
+            <label for="q19b">Chris Gayle</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q19" value="c" id="q19c">
+            <label for="q19c">Albie Morkel</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q19" value="d" id="q19d">
+            <label for="q19d">MS Dhoni</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question 20 -->
+      <div class="question-card" id="q20">
+        <h3>20. Which player has played for the most different IPL franchises?</h3>
+        <div class="question-options">
+          <div class="option">
+            <input type="radio" name="q20" value="a" id="q20a">
+            <label for="q20a">Dinesh Karthik</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q20" value="b" id="q20b">
+            <label for="q20b">Robin Uthappa</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q20" value="c" id="q20c">
+            <label for="q20c">Aaron Finch</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q20" value="d" id="q20d">
+            <label for="q20d">Yuvraj Singh</label>
+          </div>
+        </div>
+      </div>
+    </form>
+    
+    <div class="submit-section">
+      <button class="submit-btn" id="submitBtn" onclick="submitQuiz()">Submit Quiz</button>
+    </div>
+    
+    <div class="scoreboard">
+      <h3>🏆 Live Scoreboard</h3>
+      <ul class="score-list" id="scoreList"></ul>
+    </div>
+    
+    <div class="navigation">
+      <a href="quiz.html" class="btn">Basic Quiz</a>
+      <a href="player-selection.html" class="btn">Player Selection</a>
+      <a href="auction-rounds.html" class="btn">Auction Rounds</a>
+      <a href="../index.html" class="btn">Home</a>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { database } from '../config/firebase.js';
+    import { ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js';
+    
+    // Firebase References
+    const quizScoresRef = ref(database, "advancedQuizScores");
+    const usernameRef = ref(database, "currentUser/username");
+    
+    // Correct answers
+    const correctAnswers = {
+      q11: "b", q12: "c", q13: "c", q14: "a", q15: "c",
+      q16: "b", q17: "a", q18: "b", q19: "c", q20: "c"
+    };
+    
+    let currentIndex = 0;
+    let timer;
+    let timeLeft = 10;
+    let currentUsername = ""; // Store username from Firebase
+    const questions = document.querySelectorAll(".question-card");
+    const timerDisplay = document.getElementById("timer");
+    const progressFill = document.getElementById("progressFill");
+    const submitBtn = document.getElementById("submitBtn");
+    
+    // Load username from Firebase on page load
+    function loadUsernameFromFirebase() {
+      onValue(usernameRef, (snapshot) => {
+        if (snapshot.exists()) {
+          currentUsername = snapshot.val();
+          console.log("✅ Username loaded:", currentUsername);
+          // Hide dropdown and show username instead
+          const teamNameSelect = document.getElementById("teamName");
+          teamNameSelect.style.display = "none";
+          const userSelectorDiv = document.querySelector(".user-selector");
+          const usernameDisplay = document.createElement("div");
+          usernameDisplay.style.cssText = "padding: 12px 20px; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: white; font-size: 16px; min-width: 200px; display: inline-block;";
+          usernameDisplay.textContent = `👤 ${currentUsername}`;
+          userSelectorDiv.appendChild(usernameDisplay);
+          // Auto-start the quiz
+          startQuiz();
+        } else {
+          console.warn("⚠️ Username not found in Firebase");
+          currentUsername = "Guest";
+          startQuiz();
+        }
+      });
+    }
+    
+    // Initialize quiz
+    function init() {
+      setupEventListeners();
+      updateScoreboard();
+      loadUsernameFromFirebase();
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById("teamName").addEventListener("change", function() {
+        if (this.value) {
+          currentUsername = this.value;
+          startQuiz();
+        }
+      });
+    }
+    
+    // Start quiz
+    function startQuiz() {
+      currentIndex = 0;
+      showQuestion();
+    }
+    
+    // Show current question
+    function showQuestion() {
+      // Hide all questions
+      questions.forEach(q => q.classList.remove('active'));
+      
+      if (currentIndex < questions.length) {
+        // Show current question
+        questions[currentIndex].classList.add('active');
+        
+        // Update progress bar
+        const progress = ((currentIndex + 1) / questions.length) * 100;
+        progressFill.style.width = `${progress}%`;
+        
+        // Start timer
+        startTimer();
+      } else {
+        // Quiz completed
+        timerDisplay.textContent = "Quiz Completed!";
+        submitBtn.style.display = "block";
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // Start timer for current question
+    function startTimer() {
+      timeLeft = 10;
+      updateTimerDisplay();
+      
+      timer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          currentIndex++;
+          showQuestion();
+        }
+      }, 1000);
+    }
+    
+    // Update timer display
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerDisplay.textContent = `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}s`;
+      
+      // Change color based on time left
+      if (timeLeft <= 3) {
+        timerDisplay.style.color = "#ff4757";
+      } else if (timeLeft <= 5) {
+        timerDisplay.style.color = "#ffa502";
+      } else {
+        timerDisplay.style.color = "#ff6b6b";
+      }
+    }
+    
+    // Submit quiz
+    window.submitQuiz = function() {
+      const name = currentUsername;
+      if (!name) {
+        alert("Please wait for username to load!");
+        return;
+      }
+      
+      // Check if already submitted
+      get(ref(database, `advancedQuizScores/${name}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          alert("You have already submitted this quiz!");
+          return;
+        }
+        
+        // Calculate score
+        let score = 0;
+        const form = document.forms["quizForm"];
+        
+        for (let q in correctAnswers) {
+          const answer = form[q]?.value;
+          if (answer === correctAnswers[q]) {
+            score++;
+          }
+        }
+        
+        // Save score to Firebase
+        set(ref(database, `advancedQuizScores/${name}`), { score })
+          .then(() => {
+            alert(`🎉 Quiz completed! Your score: ${score}/10`);
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Already Submitted";
+          })
+          .catch((error) => {
+            console.error("Error saving score:", error);
+            alert("Error saving score. Please try again.");
+          });
+      });
+    };
+    
+    // Update scoreboard
+    function updateScoreboard() {
+      onValue(quizScoresRef, (snapshot) => {
+        const scoreList = document.getElementById("scoreList");
+        scoreList.innerHTML = "";
+        
+        const scores = snapshot.val();
+        if (scores) {
+          // Convert to array and sort by score
+          const scoreArray = Object.entries(scores)
+            .map(([name, data]) => ({ name, score: data.score }))
+            .sort((a, b) => b.score - a.score);
+          
+          scoreArray.forEach(({ name, score }, index) => {
+            const li = document.createElement("li");
+            li.className = "score-item";
+            li.innerHTML = `
+              <span class="score-name">${index + 1}. ${name}</span>
+              <span class="score-value">${score}/10</span>
+            `;
+            scoreList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.className = "score-item";
+          li.innerHTML = '<span class="score-name">No scores yet</span>';
+          scoreList.appendChild(li);
+        }
+      });
+    }
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

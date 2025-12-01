@@ -1,0 +1,320 @@
+
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IPL Quiz</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f0f8ff;
+      background: linear-gradient(to right, #43cea2, #b2c080);
+    }
+    h1, h3 {
+      text-align: center;
+      color: #333;
+    }
+    .timer {
+      font-size: 20px;
+      color: red;
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    .question {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .question h3 {
+      margin-bottom: 10px;
+    }
+    .question label {
+      display: block;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #result {
+      font-size: 22px;
+      color: green;
+      font-weight: bold;
+      margin-top: 30px;
+      text-align: center;
+    }
+    #scoreboard {
+      margin-top: 40px;
+    }
+    #quizForm {
+      display: none;
+    }
+    #adminPanel {
+      margin-top: 60px;
+      padding: 20px;
+      background: #ffecec;
+      border: 1px solid red;
+      border-radius: 10px;
+    }
+    #adminPanel input {
+      padding: 8px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>IPL Cricket Quiz</h1>
+
+  <div class="timer" id="timer">Time Left: 90sec</div>
+
+  <select id="teamName" style="font-size: 18px; padding: 5px; width: 200px;">
+    <option value="">Select User</option>
+    
+    <option value="Karan">Periyar</option>
+    <option value="Selva">Selva</option>
+    <option value="Koushik">Kanish</option>
+    <option value="Manoj">Manoj</option>
+    <option value="Avenash">Avenash</option>
+    <option value="Shanio">Bathri</option>
+    <option value="Rohit">Rohit</option>
+    <option value="Abdul">Abdul</option>
+    <option value="Aswath">Aswath</option>
+    <option value="Varshan">Varshan</option>
+    <option value="rrk">rrk</option>
+    <option value="Gokul">Gokul</option>
+    <option value="Jerwin">Yswanth</option>
+  </select>
+
+  <form id="quizForm"><div class="question">
+    <h3>1. Who scored the fastest century in IPL history?</h3>
+    <label><input type="radio" name="q1" value="a"> AB de Villiers</label>
+    <label><input type="radio" name="q1" value="b"> David Miller</label>
+    <label><input type="radio" name="q1" value="c"> Chris Gayle</label>
+    <label><input type="radio" name="q1" value="d"> Yusuf Pathan</label>
+    <label><input type="radio" name="q1" value="e"> KL Rahul</label>
+  </div>
+
+  <div class="question">
+    <h3>2. What is the highest team score in IPL?</h3>
+    <label><input type="radio" name="q2" value="a"> 248/3 by RCB</label>
+    <label><input type="radio" name="q2" value="b"> 263/5 by RCB</label>
+    <label><input type="radio" name="q2" value="c"> 257/4 by MI</label>
+    <label><input type="radio" name="q2" value="d"> 245/6 by CSK</label>
+    <label><input type="radio" name="q2" value="e"> 260/5 by SRH</label>
+  </div>
+
+  <div class="question">
+    <h3>3. Who has the most wickets in IPL history?</h3>
+    <label><input type="radio" name="q3" value="a"> Jasprit Bumrah</label>
+    <label><input type="radio" name="q3" value="b"> Lasith Malinga</label>
+    <label><input type="radio" name="q3" value="c"> Dwayne Bravo</label>
+    <label><input type="radio" name="q3" value="d"> Yuzvendra Chahal</label>
+    <label><input type="radio" name="q3" value="e"> Amit Mishra</label>
+  </div>
+
+  <div class="question">
+    <h3>4. Who has hit the most sixes in IPL history?</h3>
+    <label><input type="radio" name="q4" value="a"> Andre Russell</label>
+    <label><input type="radio" name="q4" value="b"> Rohit Sharma</label>
+    <label><input type="radio" name="q4" value="c"> Virat Kohli</label>
+    <label><input type="radio" name="q4" value="d"> MS Dhoni</label>
+    <label><input type="radio" name="q4" value="e"> Chris Gayle</label>
+  </div>
+
+  <div class="question">
+    <h3>5. Which team has won the most IPL titles (as of 2024)?</h3>
+    <label><input type="radio" name="q5" value="a"> Chennai Super Kings</label>
+    <label><input type="radio" name="q5" value="b"> RCB</label>
+    <label><input type="radio" name="q5" value="c"> Kolkata Knight Riders</label>
+    <label><input type="radio" name="q5" value="d"> Rajasthan Royals</label>
+    <label><input type="radio" name="q5" value="e"> Gujarat Titans</label>
+  </div>
+
+  <div class="question">
+    <h3>6. Who won the Orange Cap in IPL 2023?</h3>
+    <label><input type="radio" name="q6" value="a"> Shubman Gill</label>
+    <label><input type="radio" name="q6" value="b"> Faf du Plessis</label>
+    <label><input type="radio" name="q6" value="c"> Virat Kohli</label>
+    <label><input type="radio" name="q6" value="d"> Devon Conway</label>
+    <label><input type="radio" name="q6" value="e"> Ruturaj Gaikwad</label>
+  </div>
+
+  <div class="question">
+    <h3>7. Who is the first bowler to take a hat-trick in IPL?</h3>
+    <label><input type="radio" name="q7" value="a"> Lakshmipathy Balaji</label>
+    <label><input type="radio" name="q7" value="b"> Amit Mishra</label>
+    <label><input type="radio" name="q7" value="c"> Makhaya Ntini</label>
+    <label><input type="radio" name="q7" value="d"> Sunil Narine</label>
+    <label><input type="radio" name="q7" value="e"> Shane Warne</label>
+  </div>
+
+  <div class="question">
+    <h3>8. Which team had the longest winning streak in a single IPL season?</h3>
+    <label><input type="radio" name="q8" value="a"> Mumbai Indians</label>
+    <label><input type="radio" name="q8" value="b"> Chennai Super Kings</label>
+    <label><input type="radio" name="q8" value="c"> Kolkata Knight Riders</label>
+    <label><input type="radio" name="q8" value="d"> Punjab Kings</label>
+    <label><input type="radio" name="q8" value="e"> Royal Challengers Bangalore</label>
+  </div>
+
+  <div class="question">
+    <h3>9. Who was the first uncapped player to win the MVP award in IPL?</h3>
+    <label><input type="radio" name="q9" value="a"> Sanju Samson</label>
+    <label><input type="radio" name="q9" value="b"> Nitish Rana</label>
+    <label><input type="radio" name="q9" value="c"> Rahul Tewatia</label>
+    <label><input type="radio" name="q9" value="d"> Harshal Patel</label>
+    <label><input type="radio" name="q9" value="e"> Ruturaj Gaikwad</label>
+  </div>
+
+  <div class="question">
+    <h3>10. Who hit six sixes in an over in IPL 2021?</h3>
+    <label><input type="radio" name="q10" value="a"> Kieron Pollard</label>
+    <label><input type="radio" name="q10" value="b"> Andre Russell</label>
+    <label><input type="radio" name="q10" value="c"> Rahul Tewatia</label>
+    <label><input type="radio" name="q10" value="d"> Ravindra Jadeja</label>
+    <label><input type="radio" name="q10" value="e"> Ruturaj Gaikwad</label>
+  </div>
+
+ 
+    <!-- 10 Questions (same as before, not repeated for brevity) -->
+    <!-- Keep your 10 questions here exactly as in your original code -->
+
+    <button type="button" onclick="submitQuiz()">Submit</button>
+  </form>
+
+  <div id="result"></div>
+
+  <div id="scoreboard">
+    <h3>Live Scores</h3>
+    <ul id="scoreList"></ul>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <h3>🔐 Admin Actions</h3>
+    <input type="password" id="adminPass" placeholder="Enter admin password">
+    <button onclick="clearScores()">Clear All Scores</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695841",
+      appId: "1:471068695841:web:583eccd3c92b236d123260"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const correctAnswers = {
+      q1: "d", q2: "b", q3: "c", q4: "e", q5: "a",
+      q6: "a", q7: "a", q8: "c", q9: "d", q10: "d"
+    };
+
+    let timer;
+    let timeLeft = 90;
+
+    function startTimer() {
+      timer = setInterval(() => {
+        const timerDisplay = document.getElementById("timer");
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          submitQuiz(true);
+        } else {
+          const min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+          const sec = String(timeLeft % 60).padStart(2, '0');
+          timerDisplay.textContent = `Time Left: ${min}:${sec}`;
+          timeLeft--;
+        }
+      }, 1000);
+    }
+
+    document.getElementById("teamName").addEventListener("change", function () {
+      if (this.value) {
+        document.getElementById("quizForm").style.display = "block";
+        if (!timer) startTimer();
+      }
+    });
+
+    function submitQuiz(auto = false) {
+      const name = document.getElementById("teamName").value;
+      if (!name) return alert("Please select your name first");
+
+      db.ref("quizScores/" + name).once("value", (snap) => {
+        if (snap.exists()) {
+          alert("You have already submitted the quiz!");
+          return;
+        }
+
+        clearInterval(timer);
+        const form = document.forms["quizForm"];
+        let score = 0;
+
+        for (let q in correctAnswers) {
+          const answer = form[q]?.value;
+          if (answer === correctAnswers[q]) score++;
+        }
+
+        db.ref("quizScores/" + name).set({ score });
+        alert(`${auto ? "Time's up! " : ""}Your score: ${score}/10`);
+        document.querySelector("button").disabled = true;
+      });
+    }
+
+    function updateScoreboard() {
+      const list = document.getElementById("scoreList");
+      db.ref("quizScores").on("value", (snapshot) => {
+        list.innerHTML = "";
+        const scores = snapshot.val();
+        if (scores) {
+          Object.entries(scores).forEach(([name, data]) => {
+            const li = document.createElement("li");
+            li.textContent = `${name}: ${data.score}/10`;
+            list.appendChild(li);
+          });
+        }
+      });
+    }
+
+    function clearScores() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "7now") {
+        if (confirm("Are you sure you want to clear all scores?")) {
+          db.ref("quizScores").remove()
+            .then(() => {
+              alert("All scores cleared successfully!");
+              document.getElementById("scoreList").innerHTML = "";
+            })
+            .catch((err) => alert("Error clearing scores: " + err));
+        }
+      } else {
+        alert("Incorrect admin password.");
+      }
+    }
+
+    updateScoreboard();
+  </script>
+</body>
+</html>
+

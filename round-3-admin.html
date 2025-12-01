@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Panel — Spinner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root{
+        --bg: #f6f8fb;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --accent: #334155;
+        --success: #10b981;
+        --danger: #ef4444;
+        --radius: 10px;
+        --shadow: 0 6px 20px rgba(16,24,40,0.08);
+      }
+
+      html,body{height:100%;}
+      body{
+        margin:0;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        background:var(--bg);
+        color:var(--accent);
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+      }
+
+      .wrap{
+        max-width:980px;
+        margin:32px auto;
+        padding:24px;
+      }
+
+      .header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        margin-bottom:18px;
+      }
+
+      .title{
+        display:flex;flex-direction:column;
+      }
+      .title h1{margin:0;font-size:20px;font-weight:700;color:var(--accent);}
+      .title p{margin:2px 0 0 0;color:var(--muted);font-size:13px}
+
+      .card{
+        background:var(--card);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        padding:18px;
+        margin-bottom:18px;
+      }
+
+      .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+      .btn{
+        background:#111827;color:white;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px;
+      }
+      .btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e9ee}
+      .btn.warn{background:var(--danger)}
+      .btn.success{background:var(--success)}
+
+      .user-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+      .user-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;border:1px solid #f0f2f5}
+      .user-row input{width:16px;height:16px}
+
+      .form-inline{display:flex;gap:8px;align-items:center}
+      .input{padding:8px 12px;border-radius:8px;border:1px solid #e6e9ee;background:transparent}
+
+      .footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+      .muted{color:var(--muted);font-size:13px}
+
+      @media(max-width:640px){
+        .user-list{grid-template-columns:1fr}
+        .header{flex-direction:column;align-items:flex-start}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title">
+          <h1>Admin Panel — Spinner</h1>
+          <p class="muted">Manage allowed users and reset spin state</p>
+        </div>
+        <div class="controls">
+          <button class="btn ghost" onclick="goHome()">Main Page</button>
+          <button class="btn" onclick="goToRound3()">Back to Spinner</button>
+        </div>
+      </div>
+
+      <div class="card" aria-labelledby="allowed-label">
+        <h3 id="allowed-label">Allowed Users</h3>
+        <p class="muted">Toggle which users are permitted to spin.</p>
+        <div id="userList" class="user-list" style="margin-top:12px">
+          <!-- populated dynamically -->
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn success" onclick="saveAllowedUsers()">Save</button>
+          <button class="btn" onclick="selectAllUsers()">Select All</button>
+          <button class="btn ghost" onclick="deselectAllUsers()">Deselect All</button>
+        </div>
+      </div>
+
+      <div class="card" aria-labelledby="clear-label">
+        <h3 id="clear-label">Clear Spins</h3>
+        <p class="muted">Reset spin states for all users. This action cannot be undone.</p>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <input id="adminPassword" class="input" type="password" placeholder="Admin password" aria-label="Admin password">
+          <button class="btn warn" onclick="clearAllSpins()">Clear All</button>
+        </div>
+      </div>
+
+      <div class="footer muted">Tip: Use the admin password to allow mass operations.</div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import { getDatabase, ref, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+        authDomain: "happy-70335.firebaseapp.com",
+        databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+        projectId: "happy-70335",
+        storageBucket: "happy-70335.appspot.com",
+        messagingSenderId: "471068695841",
+        appId: "1:471068695841:web:583eccd3c92b236d123260"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      const allUsers = ["Karan", "Shanio", "Selva", "Koushik", "Abdul", "Avenash", "Manoj", "Rohit", "Jerwin", "Gokul", "varshan", "Raja", "Aswath"];
+      let allowedUsersSet = new Set();
+
+      onValue(ref(db, "allowedUsers"), snapshot => {
+        const data = snapshot.val();
+        allowedUsersSet = new Set(data ? Object.keys(data).filter(u => data[u]) : []);
+        displayUserList();
+      });
+
+      function displayUserList(){
+        const container = document.getElementById('userList');
+        container.innerHTML = '';
+        allUsers.forEach(u => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'user-row';
+          const checked = allowedUsersSet.has(u) ? 'checked' : '';
+          wrapper.innerHTML = `<input type="checkbox" value="${u}" ${checked}><div style="font-weight:600">${u}</div>`;
+          container.appendChild(wrapper);
+        });
+      }
+
+      window.saveAllowedUsers = function(){
+        const boxes = document.querySelectorAll('#userList input[type=checkbox]');
+        const updated = {};
+        boxes.forEach(b => updated[b.value] = b.checked);
+        set(ref(db,'allowedUsers'), updated).then(()=> alert('Allowed users updated'));
+      };
+
+      window.selectAllUsers = function(){
+        document.querySelectorAll('#userList input[type=checkbox]').forEach(cb=>cb.checked=true);
+      };
+
+      window.deselectAllUsers = function(){
+        document.querySelectorAll('#userList input[type=checkbox]').forEach(cb=>cb.checked=false);
+      };
+
+      window.clearAllSpins = function(){
+        const pwd = document.getElementById('adminPassword').value;
+        if(!pwd){ alert('Enter admin password'); return; }
+        if(pwd !== '7'){ alert('Wrong password'); return; }
+        allUsers.forEach(u => remove(ref(db, `spinStatus/${u}`)));
+        alert('All spins cleared');
+        document.getElementById('adminPassword').value = '';
+      };
+
+      window.goToRound3 = function(){ window.location.href = 'round-3.html'; };
+      window.goHome = function(){ window.location.href = 'main-1.html'; };
+
+      // initial render
+      displayUserList();
+    </script>
+  </body>
+</html>

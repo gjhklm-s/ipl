@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retention Rules</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff8c42;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background: #e56717;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-blue-100 min-h-screen flex flex-col justify-between p-4">
+
+  <div class="flex-grow flex items-center justify-center">
+    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-2xl w-full border border-blue-200">
+      <h1 class="text-3xl font-bold text-blue-800 mb-6 text-center">🔒 Retention Rules</h1>
+      
+      <ul class="space-y-4 text-lg text-gray-800">
+        <li class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-400">
+          ✅ <strong>3 players</strong> must be retained. You cannot retain fewer.
+        </li>
+        <li class="bg-green-50 p-4 rounded-xl border-l-4 border-green-400">
+          🇮🇳 <strong>1st Player:</strong> Must be an <strong>Indian player</strong>. Gets <strong>₹20 Cr</strong>.
+        </li>
+        <li class="bg-yellow-50 p-4 rounded-xl border-l-4 border-yellow-400">
+          🌍 <strong>2nd Player:</strong> Must be a <strong>Foreign player</strong>. Gets <strong>₹15 Cr</strong>.
+        </li>
+        <li class="bg-purple-50 p-4 rounded-xl border-l-4 border-purple-400">
+          🧢 <strong>3rd Player:</strong> Must be an <strong>Uncapped Indian player</strong>. Gets <strong>₹10 Cr</strong>.
+        </li>
+      </ul>
+
+      <div class="mt-8 text-center text-sm text-gray-600 italic">
+        ⚠️ Partial retention (only 1 or 2 players) is not allowed.
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-6">
+    <button class="button" onclick="goToPage('rules.html')">Proceed</button>
+  </div>
+
+  <script>
+    function goToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>
+
+

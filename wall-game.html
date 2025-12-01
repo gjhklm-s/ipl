@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Wall Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .question-box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 90%;
+      max-width: 400px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      margin: 5px;
+      background: #10b981;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .wall-container {
+      position: relative;
+      margin: 30px auto;
+      width: 100%;
+      max-width: 600px;
+      height: 320px;
+      border-top: 2px solid white;
+    }
+
+    .slots {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .slot {
+      flex: 1;
+      margin: 0 2px;
+      height: 50px;
+      background: #1e40af;
+      color: #facc15;
+      font-weight: bold;
+      border-radius: 8px;
+      line-height: 50px;
+      text-align: center;
+      font-size: 14px;
+      border: 2px solid white;
+    }
+
+    .peg {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .ball {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: red;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .prize {
+      font-size: 24px;
+      margin-top: 20px;
+      color: #facc15;
+    }
+
+    .score {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #38bdf8;
+    }
+
+    @media (max-width: 600px) {
+      .slot {
+        font-size: 12px;
+        height: 45px;
+        line-height: 45px;
+      }
+
+      .ball {
+        width: 20px;
+        height: 20px;
+      }
+
+      button {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧱 The Wall Game 🧱</h1>
+
+  <div class="question-box">
+    <p id="questionText"><strong>Question:</strong></p>
+    <input type="text" id="answerInput" placeholder="Enter your answer" />
+    <br />
+    <button onclick="checkAnswer()">Submit Answer</button>
+  </div>
+
+  <div id="dropSection" style="display:none;">
+    <p>Select Drop Position:</p>
+    <div id="dropButtons" style="display: flex; justify-content: space-around; flex-wrap: wrap;"></div>
+  </div>
+
+  <div id="wall" class="wall-container" style="display:none;">
+    <div id="ball" class="ball"></div>
+    <div id="pegsContainer"></div>
+    <div class="slots" id="slotsRow"></div>
+  </div>
+
+  <div class="prize" id="prizeText"></div>
+  <div class="score" id="scoreText">Total Score: ₹0 Cr</div>
+
+  <script>
+    const questions = [
+      { q: "What 1-1?", a: "0" },
+      { q: "Which planet is known as the Red Planet?", a: "mars" },
+      { q: "45+25?", a: "70" },
+      { q: "What is H2O commonly known as?", a: "water" },
+      { q: "In which country is the Taj Mahal located?", a: "india" }
+    ];
+
+    const prizes = [1, -2, 3, -1, 5, -5, 7, -3]; // Positive and Negative
+    let currentQuestion = 0;
+    let totalScore = 0;
+
+    const questionText = document.getElementById("questionText");
+    const answerInput = document.getElementById("answerInput");
+    const dropSection = document.getElementById("dropSection");
+    const dropButtons = document.getElementById("dropButtons");
+    const prizeText = document.getElementById("prizeText");
+    const scoreText = document.getElementById("scoreText");
+    const wall = document.getElementById("wall");
+    const ball = document.getElementById("ball");
+    const pegsContainer = document.getElementById("pegsContainer");
+    const slotsRow = document.getElementById("slotsRow");
+
+    function showQuestion() {
+      if (currentQuestion < questions.length) {
+        const q = questions[currentQuestion];
+        questionText.innerHTML = `<strong>Question ${currentQuestion + 1}:</strong> ${q.q}`;
+        answerInput.value = "";
+        dropSection.style.display = "none";
+        wall.style.display = "none";
+        prizeText.innerText = "";
+        ball.style.top = "0px";
+        ball.style.left = "50%";
+        ball.style.display = "none";
+        createPegs();
+        renderSlots();
+      } else {
+        questionText.innerHTML = `<strong>Game Over!</strong>`;
+        document.querySelector(".question-box").style.display = "none";
+        prizeText.innerText = `🎉 Final Total: ₹${totalScore} Crore 🎉`;
+      }
+    }
+
+    function checkAnswer() {
+      const userAnswer = answerInput.value.trim().toLowerCase();
+      const correct = questions[currentQuestion].a;
+      if (userAnswer === correct) {
+        alert("Correct! Select drop position.");
+        dropSection.style.display = "block";
+        renderDropButtons();
+      } else {
+        alert("Wrong answer. Moving to next question.");
+        currentQuestion++;
+        showQuestion();
+      }
+    }
+
+    function renderDropButtons() {
+      dropButtons.innerHTML = "";
+      for (let i = 0; i < prizes.length; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = `Drop ${i + 1}`;
+        btn.onclick = () => dropBall(i);
+        dropButtons.appendChild(btn);
+      }
+    }
+
+    function renderSlots() {
+      slotsRow.innerHTML = "";
+      prizes.forEach(prize => {
+        const slot = document.createElement("div");
+        slot.className = "slot";
+        slot.innerText = prize >= 0 ? `₹${prize}cr` : `-₹${Math.abs(prize)}cr`;
+        slot.style.background = prize < 0 ? "#dc2626" : "#1e40af";
+        slotsRow.appendChild(slot);
+      });
+    }
+
+    function createPegs() {
+      pegsContainer.innerHTML = "";
+      const rows = 6;
+      const cols = prizes.length;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const peg = document.createElement("div");
+          peg.className = "peg";
+          const offset = r % 2 === 0 ? 0.5 : 0;
+          peg.style.top = `${r * 40 + 30}px`;
+          peg.style.left = `calc(${(c + offset) * (100 / prizes.length)}% - 5px)`;
+          pegsContainer.appendChild(peg);
+        }
+      }
+    }
+
+    function dropBall(startIndex) {
+      wall.style.display = "block";
+      ball.style.display = "block";
+      const wallWidth = wall.offsetWidth;
+      const slotWidth = wallWidth / prizes.length;
+      let left = startIndex * slotWidth + slotWidth / 2 - 12;
+      const path = [];
+
+      for (let i = 0; i < 6; i++) {
+        const direction = Math.random() < 0.5 ? -1 : 1;
+        left += direction * slotWidth / 2;
+        left = Math.max(0, Math.min(left, wallWidth - 24));
+        path.push(left);
+      }
+
+      let step = 0;
+      function animateDrop() {
+        if (step < path.length) {
+          ball.style.transition = "top 0.3s linear, left 0.3s linear";
+          ball.style.top = `${(step + 1) * 40}px`;
+          ball.style.left = `${path[step]}px`;
+          step++;
+          setTimeout(animateDrop, 300);
+        } else {
+          const slotEls = document.querySelectorAll(".slot");
+          let closest = 0, minDiff = Infinity;
+          slotEls.forEach((s, i) => {
+            const center = s.offsetLeft + s.offsetWidth / 2;
+            const diff = Math.abs(center - parseFloat(ball.style.left));
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = i;
+            }
+          });
+
+          const prize = prizes[closest];
+          totalScore += prize;
+          if (totalScore < 0) totalScore = 0;
+
+          prizeText.innerText = prize >= 0
+            ? `🎉 You won ₹${prize} Crore! 🎉`
+            : `😢 You lost ₹${Math.abs(prize)} Crore! 😢`;
+
+          scoreText.innerText = `Total Score: ₹${totalScore} Cr`;
+          dropSection.style.display = "none";
+          currentQuestion++;
+          setTimeout(showQuestion, 2000);
+        }
+      }
+
+      animateDrop();
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+
 import { PlayerImageInfo } from "./types";
 
 // List of users acting as "Teams"
@@ -6,7 +7,7 @@ export const USERS = [
   "DD", "Raja", "Aswath", "Varshan","Bathri", "rrk", "Gokul", "Jerwin"
 ];
 
-// Mapping raw categories to IPL Roles
+// Mapping raw categories to IPL Roles (Default Fallback)
 export const ROLE_MAPPING: Record<string, 'Batter' | 'Bowler' | 'All-Rounder'> = {
   Wicketkeepers: 'Batter',
   Openers: 'Batter',
@@ -14,10 +15,100 @@ export const ROLE_MAPPING: Record<string, 'Batter' | 'Bowler' | 'All-Rounder'> =
   AllRounders: 'All-Rounder',
   Spinners: 'Bowler',
   FastBowlers: 'Bowler',
-  ForeignPlayers: 'Batter', // Defaulting to batter if generic
-  IndianPlayers: 'Batter',
+  ForeignPlayers: 'Batter', // Will be overridden by SPECIFIC_PLAYER_ROLES
+  IndianPlayers: 'Batter',  // Will be overridden by SPECIFIC_PLAYER_ROLES
   Players: 'Batter'
 };
+
+// Explicitly define roles for players who are in mixed categories or need correction
+export const SPECIFIC_PLAYER_ROLES: Record<string, 'Batter' | 'Bowler' | 'All-Rounder'> = {
+  // All Rounders misclassified
+  "Andre Russell": "All-Rounder",
+  "Hardik Pandya": "All-Rounder",
+  "Liam Livingstone": "All-Rounder",
+  "Mitchell Santner": "All-Rounder",
+  "Aiden Markram": "All-Rounder",
+  "Glenn Maxwell": "All-Rounder",
+  "Marcus Stoinis": "All-Rounder",
+  "Ravindra Jadeja": "All-Rounder",
+  "Axar Patel": "All-Rounder",
+  "Ben Stokes": "All-Rounder",
+  "Moeen Ali": "All-Rounder",
+  "Sam Curran": "All-Rounder",
+  "Cameron Green": "All-Rounder",
+  "Sunil Narine": "All-Rounder",
+  "Jason Holder": "All-Rounder",
+  "Shakib Al Hasan": "All-Rounder",
+  "Kieron Pollard": "All-Rounder",
+  "Dwayne Bravo": "All-Rounder",
+  "Shane Watson": "All-Rounder",
+  "Jacques Kallis": "All-Rounder",
+  "Yuvraj Singh": "All-Rounder",
+  "Washington Sundar": "All-Rounder",
+  "Rachin Ravindra": "All-Rounder",
+  "Will Jacks": "All-Rounder",
+
+  // Bowlers misclassified
+  "Rashid Khan": "Bowler",
+  "Varun Chakravarthy": "Bowler",
+  "Kagiso Rabada": "Bowler",
+  "Arshdeep Singh": "Bowler",
+  "Bhuvneshwar Kumar": "Bowler",
+  "Umesh Yadav": "Bowler",
+  "Wanindu Hasaranga": "Bowler",
+  "Harshit Rana": "Bowler",
+  "Nathan Ellis": "Bowler",
+  "Pat Cummins": "Bowler",
+  "Mitchell Starc": "Bowler",
+  "Trent Boult": "Bowler",
+  "Jasprit Bumrah": "Bowler",
+  "Mohammed Siraj": "Bowler",
+  "Yuzvendra Chahal": "Bowler",
+  "Kuldeep Yadav": "Bowler",
+  "Ravi Bishnoi": "Bowler",
+  "Mohammad Shami": "Bowler",
+  "Anrich Nortje": "Bowler",
+  "Jofra Archer": "Bowler",
+  "Lockie Ferguson": "Bowler",
+  "Adam Zampa": "Bowler",
+  "Adil Rashid": "Bowler",
+  "Tim Southee": "Bowler",
+  "Lasith Malinga": "Bowler",
+  "Harbhajan Singh": "Bowler",
+  "Imran Tahir": "Bowler",
+  "Zaheer Khan": "Bowler",
+  "Brett Lee": "Bowler",
+  "Ashish Nehra": "Bowler",
+  "RP Singh": "Bowler",
+  "Mitchell Johnson": "Bowler",
+  "Muttiah Muralitharan": "Bowler",
+  "Anil Kumble": "Bowler"
+};
+
+// Comprehensive list of Overseas Players
+export const KNOWN_OVERSEAS = new Set([
+  "Jos Buttler", "Sunil Narine", "David Warner", "Matheesha Pathirana", "Daryl Mitchell", 
+  "Tim David", "Travis Head", "Mohammad Rizwan", "Faf du Plessis", "Ben Stokes", 
+  "Rachin Ravindra", "Dewald breavis", "Romario Shepherd", "Jofra Archer", "Will Jacks", 
+  "Jonny Bairstow", "Rovman Powell", "Lungi Ngidi", "Mark Wood", "Nicholas Pooran", 
+  "Phil Salt", "Cameron Green", "Maheesh Theekshana", "Moeen Ali", "Mitchell Starc", 
+  "Trent Boult", "Tristan Stubbs", "Sam Curran", "Steve Smith", "Shimron Hetmyer", 
+  "Anrich Nortje", "Quinton De Kock", "David Miller", "Naveen-ul-Haq", "Noor Ahmad", 
+  "Gerald Coetzee", "Devon Conway", "Mitchell Marsh", "Glenn Phillips", "Marcus Stoinis", 
+  "Marco Jansen", "Glenn Maxwell", "Pat Cummins", "Josh Hazlewood", "Shai Hope", 
+  "Rahmanullah Gurbaz", "Kane Williamson", "Kyle Mayers", "Harry Brook", "Lockie Ferguson", 
+  "Nuwan Thushara", "Jake Fraser-McGurk", "Heinrich Klaasen", "Andre Russell", 
+  "Liam Livingstone", "Rashid Khan", "Kagiso Rabada", "Wanindu Hasaranga", 
+  "Mitchell Santner", "Evin Lewis", "Nathan Ellis", "Aiden Markram", "Tom Latham", 
+  "Sam Billings", "Reeza Hendricks", "Dwaine Pretorius", "Ish Sodhi", "Babar Azam", 
+  "Shaheen Afridi", "Chris Woakes", "James Neesham", "Tom Curran", "Jason Behrendorff", 
+  "Matthew Wade", "Jason Roy", "Jason Holder", "Mohammad Nabi", "Shakib Al Hasan", 
+  "Adam Zampa", "Adil Rashid", "Alzarri Joseph", "Tim Southee", "Chris Jordan", 
+  "Spencer Johnson", "Kieron Pollard", "AB de Villiers", "Chris Gayle", "Dwayne Bravo", 
+  "Lasith Malinga", "Shane Watson", "Imran Tahir", "Brett Lee", "Jacques Kallis", 
+  "Mitchell Johnson", "Michael Hussey", "Brendon McCullum", "Matthew Hayden", 
+  "Adam Gilchrist", "Muttiah Muralitharan", "Ricky Ponting", "Kevin Pietersen"
+]);
 
 // Flattened player database from the user's original HTML
 // This is used to lookup images and original categories

@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Auction System</title>
+  <link rel="stylesheet" href="style.css">
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+        import { getDatabase, ref,onChildAdded, set, get, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+        // Firebase configuration
+       const firebaseConfig = {
+  apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+  authDomain: "happy-70335.firebaseapp.com",
+  databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+  projectId: "happy-70335",
+  storageBucket: "happy-70335.firebasestorage.app",
+  messagingSenderId: "471068695841",
+  appId: "1:471068695841:web:583eccd3c92b236d123260",
+  measurementId: "G-SD1EHGBRP9"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+      
+ 
+function listenForAuctionMessages() {
+    // ✅ Listen for real-time updates
+    onChildAdded(ref(db, "auctionMessages"), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            console.log("🔔 New Auction Alert:", data.message);
+
+            // ✅ Show alert with total points
+            const totalPointsText = data.totalPoints !== undefined ? `\nTotal Points: ${data.totalPoints}` : "";
+            alert(`${data.message}${totalPointsText}`);
+        }
+    });
+}
+
+// ✅ Start listening when page loads
+listenForAuctionMessages();
+
+        // Make Firebase functions accessible globally
+        window.db = db;
+        window.ref = ref;
+        window.set = set;
+        window.get = get;
+        window.update = update;
+        window.remove = remove;
+        window.onValue = onValue;
+        window.push = push;  // ✅ Now correctly assigned
+    </script>
+<style>
+
+       body {
+	        width: 100%;
+    padding: 0rem;
+    background: linear-gradient(to right, #fca2ae, #fdfd40);
+   /* background: rgb(208, 232, 180);*/
+    margin: 0rem auto;
+    max-width: 10000px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+text-align: center;
+    
+	  
+           
+        }
+        #teamsContainer div {
+    display: block !important;
+}
+
+
+		#hello {
+    
+    
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    display: block;
+    width: 85%;
+    margin: 1.5rem auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    border: 3px solid #333;
+}
+        
+        #teamsContainer {
+            width: 90%;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+        
+        #teamsContainer > div {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            border-left: 5px solid #667eea;
+        }
+        
+        #teamsContainer h3 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #teamsContainer p {
+            color: #555;
+            font-size: 1.1rem;
+            margin: 8px 0;
+        }
+
+
+
+
+		header {
+	         background-image: url('h.png');
+		
+             background-color: #FF8C00;
+            color:#2F4F4F;
+            padding: 4rem;
+            text-align: center;
+        }
+        footer {
+    background-image: url('he.png'); /* Change 'footer.png' to your image */
+    
+    background-position: center;
+    background-color: #FF8C00;
+    color: #2F4F4F;
+    padding: 4rem;
+    text-align: center;
+}
+       
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 2px solid #1E90FF;
+        }
+        
+        td {
+            border: 1px solid #1E90FF;
+            padding: 12px 15px;
+            text-align: center;
+            background-color: #F0FFF0;
+            color: black;
+            font-size: 1rem;
+        }
+        
+        tbody tr:hover {
+            background-color: #E8F5E9;
+            transition: background-color 0.3s ease;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+        
+        tfoot tr {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tfoot td {
+            padding: 15px;
+            border: 2px solid #667eea;
+        }
+        button {
+            padding: 12px 20px;
+            margin-top: 10px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .remove-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        }
+        
+        .remove-btn:hover {
+            background: linear-gradient(135deg, #ee5a6f, #ff6b6b);
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+        
+        .add-btn:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+        }
+        
+            
+		 h1 {
+            font-size: 2rem;
+            color:#B22222;
+            overflow: hidden;
+            border-right: .2em solid #ffffff;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .2em;
+            animation: typing 3s steps(30, end), blink .5s step-end infinite alternate;
+        }
+         #playerImage {
+            display: none; /* Initially hidden */
+            width: 300px;
+            height: auto;
+        }
+
+       /* ===== Updated Squad Cards CSS (Screenshot Matching) ===== */
+
+body {
+    background-color: #F2F4F7;
+}
+
+.player-section {
+    margin-bottom: 3px;
+    margin-top: 4px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.section-title {
+    font-size: 24px;
+    margin: 0 0 16px;
+    color: #111827;
+    font-weight: 700;
+    text-align: left;
+}
+
+/* GRID MATCHES SCREENSHOT */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* CARD STRUCTURE */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: .2s;
+}
+
+/* IMAGE AREA EXACTLY LIKE YOUR SCREENSHOT */
+.card .media {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+}
+
+.card .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;        /* KEEP PLAYER FULL IMAGE VISIBLE */
+    display: block;
+}
+
+/* PLAYER NAME + ROLE */
+.card .body {
+    padding: 12px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;   /* Matches screenshot bottom line */
+}
+
+.player-name {
+    font-weight: 700;
+    font-size: 17px;
+    margin: 0 0 6px;
+    color: #111827;
+    text-transform: uppercase;
+}
+
+.player-role {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* ACTION BUTTONS (TOP RIGHT) */
+.card .actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    transform: scale(1.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* Styling for auction box */
+.auction-box {
+    background: linear-gradient(to right, #e8f389, #ea91e2);
+    color: #2F4F4F;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 80%;
+    margin: 1rem auto;
+    box-shadow: 0 0 10px rgba(216, 216, 6, 0.2);
+    text-align: center;
+    border: 3px solid #fe8409;
+    position: relative;
+    overflow: hidden;
+    height: 100px; /* Ensures the video stays within the box */
+}
+
+.scoring-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+     object-fit: fill;
+    z-index: 1;
+    opacity: 0.6;
+    animation: fadeIn 2s ease-in-out;
+
+} 
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 0.4; }
+}
+.scorin-video {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: none; /* Hidden by default */
+}
+       
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+} 
+
+/* Auction Title */
+.auction-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000080;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+		
+		
+h2{
+    color:#8B0000;
+    white-space: nowrap;
+    margin-top: 40px;
+    font-size: 28px;
+    text-align: center;
+}
+		h3{
+		color:#FF00FF;
+		}
+    </style>
+</head>
+<body>
+ 
+    <header>
+
+    </header>
+	
+
+
+    <main>
+         <div class="auction-box">
+            <div class="main-container">
+<video autoplay loop muted playsinline class="scoring-video">
+        <source src="csk.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+        <h1 class="auction-title">Auction 2.0</h1>
+       <a href="https://www.instagram.com/su.jin7301/?next=%2F" target="_blank">
+    <button class="auction-button"onmouseover="this.style.background='#800080';" 
+        onmouseout="this.style.background='#FF4500';"
+        style="
+            background:#FF4500; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px;
+            position: relative; 
+            border-radius: 5px; 
+            z-index: 2;
+            cursor: pointer;">Click me</button>
+</a>
+</div>
+    </div>  
+	<h2>Players List</h2>
+    <button 
+    onclick="heckPasswordAndShow()" 
+    onmouseover="this.style.background='#6B8E23';" 
+    onmouseout="this.style.background='blue';" 
+    style="
+      background:blue;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;">
+    Round 1
+  </button>
+  
+  <script>
+    function heckPasswordAndShow() {
+      const password = prompt("Enter password to unlock Round 1:");
+      if (password === "7") { // You can change "7" to your actual password
+        showPlayers('Wicketkeepers');
+      } else {
+        alert("Incorrect password. Access denied.");
+      }
+    }
+  
+    function showPlayers(category) {
+      // Your logic to show players, e.g., Openers
+      alert("Showing players: " + category);
+    }
+  </script>
+ 
+        <button onclick="showPlayers('Openers')"onclick="removePlayer('${team}', ${index})" 
+        onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Round 2</button>
+        <button onclick="showPlayers('MiddleOrder')" onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Round 3</button>
+        <button onclick="showPlayers('AllRounders')" onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Round 4</button>
+       <button 
+       onclick="checkPasswordAndShow()" 
+       onmouseover="this.style.background='#6B8E23';" 
+       onmouseout="this.style.background='blue';" 
+       style="
+         background:blue;
+         color: white;
+         border: none;
+         padding: 10px 20px;
+         font-size: 16px;
+         border-radius: 5px;
+         cursor: pointer;">
+       Round 5
+     </button>
+     
+     <script>
+       function checkPasswordAndShow() {
+         const password = prompt("Enter password to unlock Round 5:");
+         if (password === "77777") { // You can change "7" to your actual password
+           showPlayers('Spinners');
+         } else {
+           alert("Incorrect password. Access denied.");
+         }
+       }
+     
+       function showPlayers(category) {
+         // Your logic to show players, e.g., Openers
+         alert("Showing players: " + category);
+       }
+     </script>
+     
+        <button onclick="showPlayers('FastBowlers')" onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Round 6</button>
+        <button onclick="showPlayers('ForeignPlayers')" onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Players-1</button>
+        <button onclick="showPlayers('IndianPlayers')"onmouseover="this.style.background='#6B8E23';" 
+        onmouseout="this.style.background='blue';"
+        style="
+            background:blue; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;"
+    >Players-2</button>
+    <button onclick="showPlayers('Players')" onmouseover="this.style.background='#6B8E23';" 
+    onmouseout="this.style.background='blue';"
+    style="
+        background:blue; 
+        color: white; 
+        border: none; 
+        padding: 10px 20px; 
+        font-size: 16px; 
+        border-radius: 5px; 
+        cursor: pointer;">Half price</button>
+		
+<div id="playerDisplay"></div>
+
+<!-- ================= BATTERS ================= -->
+<h2>Batters</h2>
+<div id="batters-cards" class="cards"></div>
+
+<!-- ================= BOWLERS ================= -->
+<h2>Bowlers</h2>
+<div id="bowlers-cards" class="cards"></div>
+
+<!-- ================= ALL ROUNDERS ================= -->
+<h2>All Rounders</h2>
+<div id="allrounders-cards" class="cards"></div>
+        <br><a id="hello">
+        <h2>Enter Auction Details</h2>
+		<label for="teamName">Select Team:</label>
+        <select id="teamName"style="font-size: 18px; padding: 5px; width: 200px;">
+            <option value="">Select User</option>
+            <option value="Sujin">Sujin</option>
+            <option value="Ajin">Ajin</option>
+            <option value="Abi">Abi</option>
+            <option value="Asoke">Asoke</option>
+            <option value="Kamal">Kamal</option>
+            <option value="Anish">Anish</option>
+            <option value="DD">DD</option>
+            <option value="Raja">Raja</option>
+            <option value="Aswath">Aswath</option>
+            <option value="Varshan">Varshan</option>
+            <option value="rrk">rrk</option>
+            <option value="Gokul">Gokul</option>
+             <option value="Jerwin">Jerwin</option>
+        
+        </select>
+		
+        <button onclick="setTeam()"onmouseover="this.style.background='#663399';" 
+        onmouseout="this.style.background='#008000';"
+        style="
+            background:#008000; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;"">Select User</button>
+		
+        <h3 id="selectedTeam"></h3>
+        <input type="text" id="playerName" placeholder="Enter Player Name"style="font-size: 18px; padding: 5px; width: 200px;"><br><br>
+        <input type="number" id="price" placeholder="Enter Price in Cr"style="font-size: 18px; padding: 5px; width: 200px;"><br>
+        <button onclick="addToAuction()"onmouseover="this.style.background='#663399';" 
+        onmouseout="this.style.background='#008000';"
+        style="
+            background:#008000; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">Add to Auction</button>
+        <h2>Unsold Players</h2>
+<table id="unsoldPlayersTable" border="1" style="width: 100%; text-align: center;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Remove</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<input type="text" id="unsoldPlayerName" placeholder="Enter Player Name" style="font-size: 18px; padding: 5px; width: 200px;">
+<button onclick="addUnsoldPlayer()" style="background:#FF4500; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">Add Unsold Player</button>
+		
+		
+            <video id="auctionVideo" class="scorin-video" autoplay muted playsinline style="display: none; width: 100%; height: auto;">
+        <source src="au.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+     <img id="playerImage" src="" alt="Player Image">
+		</a>
+        <h2>Users</h2>
+        
+        <!-- User Selection Dropdown -->
+        <div style="margin: 20px 0; text-align: center;">
+            <label for="userSelector" style="font-size: 1.2rem; font-weight: bold; color: #333; margin-right: 10px;">Select User:</label>
+            <select id="userSelector" onchange="displaySelectedUserTable()" style="
+                padding: 10px 15px;
+                font-size: 1rem;
+                border: 2px solid #667eea;
+                border-radius: 8px;
+                background: white;
+                color: #333;
+                cursor: pointer;
+                min-width: 200px;
+            ">
+                <option value="">-- Select a User --</option>
+            </select>
+        </div>
+        
+        <div id="teamsContainer"></div>
+        <div id="soldPlayersContainer">
+            <h2>Sold Players</h2>
+        </div>
+		 <h2>THE END</h2>
+		<dl>
+		<li>Congratulations to all the participants for taking part in this exciting auction game! Your strategic bidding and team-building skills made the competition thrilling—well done! 🎉👏</li>
+		
+    </main>
+    <footer></footer>
+    <div id="auctionMessages" style="color: white; font-size: 1.5rem;"></div>
+
+    <script>
+         let unsoldPlayers = JSON.parse(localStorage.getItem("unsoldPlayers")) || [];
+    
+    function addUnsoldPlayer() {
+        const playerName = document.getElementById("unsoldPlayerName").value.trim();
+        if (!playerName) {
+            alert("Please enter a player name!");
+            return;
+        }
+        if (unsoldPlayers.includes(playerName)) {
+            alert("Player is already in the unsold list!");
+            return;
+        }
+        
+        unsoldPlayers.push(playerName);
+        localStorage.setItem("unsoldPlayers", JSON.stringify(unsoldPlayers));
+        updateUnsoldTable();
+        document.getElementById("unsoldPlayerName").value = "";
+    }
+    
+    function updateUnsoldTable() {
+        const tableBody = document.querySelector("#unsoldPlayersTable tbody");
+        tableBody.innerHTML = "";
+        
+        unsoldPlayers.forEach((player, index) => {
+            const row = `<tr>
+                <td>${player}</td>
+                <td><button onclick="removeUnsoldPlayer(${index})" style="background:red; color: white; border: none; padding: 5px 10px; font-size: 14px; border-radius: 5px; cursor: pointer;">Remove</button></td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+    
+    function removeUnsoldPlayer(index) {
+        unsoldPlayers.splice(index, 1);
+        localStorage.setItem("unsoldPlayers", JSON.stringify(unsoldPlayers));
+        updateUnsoldTable();
+    }
+    
+    window.addEventListener("load", updateUnsoldTable);
+	const playerPoints = {
+        "Jos Buttler":10,"Deepak Chahar":8,"Krishnappa Gowtham":6,"Sunil Narine":10,"T. Natarajan":8,"David Warner":8,"Venkatesh Iyer":7,"Mohammad Siraj":8,"Matheesha Pathirana":10,"Ravi Bishnoi":9,"Daryl Mitchell":6,"KS Bharat":7,"Mayank Markande":6,"Mayank Agarwal":8,"Rahul Tewatia":8,"Tim David":8,"Travis Head":10,"Rahul Chahar":8,"Mohammad Rizwan":6,"Rinku Singh":8,
+        
+"Rishab Pant":10,"virat":10,"Shreyas Iyer":9,"Faf du Plessis":8,"Axar Patel":8,"Dhruv Jurel":7,"Ben Stokes":7,"KL Rahul":8,"Rachin Ravindra":7,"Nitish Reddy":9,"Ravindra Jadeja":8,"Dewald breavis":8,"Yashasvi Jaiswal":8,"Shahrukh Khan":7, "Shivam Dube":8, "Washington Sundar":7,"Romario Shepherd":8,"Ravichandran Ashwin":10,
+"Yuzvendra Chahal":10,"Jofra Archer":9,"Jasprit Bumrah":10,"urvil patel":7,"ayuesh matra":8, "Will Jacks":8,"Jonny Bairstow":8,"Rovman Powell":6, "Rahul Tripathi":7,  "Deepak Hooda":6,"Lungi Ngidi":7,"Mark Wood":7,
+       
+"Nicholas Pooran":10, "Phil Salt":8,"Sai Sudharsan":8,"Abhishek Sharma":9,"Suryakumar Yadav":10,"Umran Malik":6,"pryanch arya":8,"Rajat Patidar":8,"vaivabu suryavanshi":9,
+"Cameron Green":7,"Kuldeep Yadav":10,"Maheesh Theekshana":7,"Moeen Ali":7,"Mitchell Starc":10,"Trent Boult":10,"Tristan Stubbs":8,"Shubman Gill":8, "Shardul Thakur":6,"Suyash Sharma":6,"Sam Curran":7,
+
+"Sanju Samson":8, "Sameer Rizvi":6,"Ruturaj Gaikwad":8,"Steve Smith":7,"Shimron Hetmyer":8, "Krunal Pandya":8,"Anrich Nortje":9,"Karn Sharma":7,"Dhoni":10,"Quinton De Kock":9,"Ishan Kishan":8, "David Miller":9,"Naveen-ul-Haq":7,"Noor Ahmad":9,"Gerald Coetzee":7,"Rohit":10,"Devon Conway":8,"Mitchell Marsh":8, "Glenn Phillips":7,"Mohammad Shami":9,
+
+        "Sandeep Sharma":7,"Marcus Stoinis":9, "Avesh Khan":7,"Marco Jansen":9,"Mohit Sharma":8,"Karun Nair": 6,"Prasidh Krishna":9,"Glenn Maxwell":9,"Ishant Sharma":8,"Tushar Deshpande":9,"Ajinkya Rahane":8,"Pat Cummins":10,"Josh Hazlewood":9,"Jitesh Sharma":7,
+
+        "Shai Hope":6,"Shahbaz Ahmed":7,"Rahmanullah Gurbaz":7,   "Anuj Rawat":7,                "Kane Williamson":6,"Lalit Yadav":6,"Devdutt Padikkal":7,"Kedar Jadhav ":6, "Manish Pandey":7,"Harshal Patel":8,"Ayush Badoni":7, "Abdul Samad":7,"Sarfaraz Khan":6,"Nitish Rana":6,"Yash Dayal":8,"Kyle Mayers":7,  "Harry Brook":7,"Lockie Ferguson":6,   "Nuwan Thushara":7,  "Khaleel Ahmed":7,
+
+        "Jake Fraser-McGurk":9, "Heinrich Klaasen":10,"Tilak Verma":9, "Andre Russell":10, "Hardik Pandya":10,   "Liam Livingstone":8,           "Rashid Khan":10,    "Varun Chakravarthy":9,             "Kagiso Rabada":9,    "Arshdeep Singh":9,  "Bhuvneshwar Kumar":10,        "Umesh Yadav":7,"Riyan Parag":8,  "Wanindu Hasaranga":7, "Prabhsimran Singh":8,"Harshit Rana":8,"Mitchell Santner":8,"Evin Lewis":7,"Nathan Ellis":7,"Aiden Markram":7,
+
+        "Tom Latham":6,"Sam Billings":6,"Reeza Hendricks":6,"Dwaine Pretorius":6,"Ish Sodhi":6,"Babar Azam":7,"Shaheen Afridi":7,"Chris Woakes":6,"James Neesham":6,"Tom Curran":6,"Jason Behrendorff":6,"Matthew Wade":6,"Jason Roy":6,
+        "Kamlesh Nagarkoti":6,"Shivam Mavi":6,"Chetan Sakariya":7,"Arjun Tendulkar":6,"Sandeep Warrier":6,"Suyash Prabhudessai":6,    "Abhinav Manohar":7,    "Narayan Jagadeesan":6,   "Rilee Rossouw":6,   "Jason Holder":6, "Mohammad Nabi":6, "Vijay Shankar":7, "Shakib Al Hasan":6,"R. Sai Kishore":6,   "Adam Zampa":6, "Shreyas Gopal":6,   "Adil Rashid":6,  "Alzarri Joseph":6, "Tim Southee":6, "Chris Jordan":6,  "Spencer Johnson":6,
+        
+  "Kieron Pollard":10,
+  "Suresh Raina": 9,
+  "AB de Villiers": 10,
+  "Chris Gayle": 10,
+  "Dwayne Bravo": 9,
+  "Lasith Malinga": 9,
+  "Harbhajan Singh": 8,
+  "Shane Watson": 9,
+  "Imran Tahir": 8,
+  "Gautam Gambhir": 8,
+  "Yuvraj Singh": 8,
+  "Zaheer Khan": 7,
+  "Brett Lee": 8,
+  "Jacques Kallis": 9,
+  "Parthiv Patel": 7,
+  "Ashish Nehra": 7,
+  "RP Singh": 6,
+  "Ambati Rayudu": 8,
+  "Mitchell Johnson": 8,
+  "Michael Hussey": 8,
+  "Brendon McCullum": 9,
+  "Rahul Dravid": 9,
+  "Virender Sehwag": 9,
+  "Matthew Hayden": 8,
+  "Anil Kumble": 9,
+  "Sachin Tendulkar": 8,
+  "Adam Gilchrist": 9,
+  "Muttiah Muralitharan": 9,
+  "Ricky Ponting": 8,
+  "Kevin Pietersen": 8
+
+
+    };
+	const players = {
+            Wicketkeepers:  [
+  { "name": "Jos Buttler", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201257.png" },
+  { "name": "Deepak Chahar", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201626.png" },
+  { "name": "Krishnappa Gowtham", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200239.png" },
+  { "name": "Sunil Narine", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193027.png" },
+  { "name": "T. Natarajan", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201334.png" },
+  { "name": "David Warner", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183648.png" },
+  { "name": "Venkatesh Iyer", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193524.png" },
+  { "name": "Mohammad Siraj", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201314.png" },
+  { "name": "Matheesha Pathirana", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201013.png" },
+  { "name": "Ravi Bishnoi", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195806.png" },
+  { "name": "Daryl Mitchell", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183745.png" },
+  { "name": "KS Bharat", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141736.png" },
+  { "name": "Mayank Markande", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200014.png" },
+  { "name": "Mayank Agarwal", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204108.png" },
+  { "name": "Rahul Tewatia", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193422.png" },
+  { "name": "Tim David", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185037.png" },
+  { "name": "Travis Head", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184945.png" },
+  { "name": "Rahul Chahar", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195905.png" },
+  { "name": "Mohammad Rizwan", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183808.png" },
+  { "name": "Rinku Singh", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185434.png" }
+],
+
+            Openers: [
+  { "name": "Rishab Pant", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140645.png" },
+  { "name": "virat", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184806.png" },
+  { "name": "Shreyas Iyer", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190542.png" },
+  { "name": "Faf du Plessis", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183554.png" },
+  { "name": "Axar Patel", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193359.png" },
+  { "name": "Dhruv Jurel", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190333.png" },
+  { "name": "Ben Stokes", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193008.png" },
+  { "name": "KL Rahul", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141347.png" },
+  { "name": "Rachin Ravindra", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193326.png" },
+  { "name": "Nitish Reddy", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193713.png" },
+  { "name": "Ravindra Jadeja", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193307.png" },
+  { "name": "Dewald breavis", "image": null },
+  { "name": "Yashasvi Jaiswal", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183422.png" },
+  { "name": "Shahrukh Khan", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185406.png" },
+  { "name": "Shivam Dube", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185300.png" },
+  { "name": "Washington Sundar", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193437.png" },
+  { "name": "Romario Shepherd", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193201.png" },
+  { "name": "Ravichandran Ashwin", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195653.png" },
+  { "name": "Yuzvendra Chahal", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195821.png" },
+  { "name": "Jofra Archer", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201202.png" },
+  { "name": "Jasprit Bumrah", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201132.png" },
+  { "name": "urvil patel", "image": null },
+  { "name": "ayuesh matra", "image": null },
+  { "name": "Will Jacks", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184902.png" },
+  { "name": "Jonny Bairstow", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141258.png" },
+  
+  { "name": "Rovman Powell", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185221.png" },
+  { "name": "Rahul Tripathi", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185245.png" },
+  { "name": "Deepak Hooda", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185324.png" },
+  { "name": "Lungi Ngidi", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203252.png" },
+  { "name": "Mark Wood", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203135.png" }
+
+
+]
+,
+            MiddleOrder: [
+  { "name": "Nicholas Pooran",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140502.png" },
+  { "name": "Phil Salt",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140719.png" },
+  { "name": "Sai Sudharsan",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183530.png" },
+  { "name": "Abhishek Sharma",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183347.png" },
+  { "name": "Suryakumar Yadav",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184827.png" },
+  { "name": "Umran Malik",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201555.png" },
+  { "name": "pryanch arya",         "image": null },
+  { "name": "Rajat Patidar",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190426.png" },
+  { "name": "vaivabu suryavanshi",  "image": null },
+  
+  { "name": "Cameron Green",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193251.png" },
+  { "name": "Kuldeep Yadav",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195728.png" },
+  { "name": "Maheesh Theekshana",   "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200034.png" },
+  { "name": "Moeen Ali",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193540.png" },
+  { "name": "Mitchell Starc",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201031.png" },
+  { "name": "Trent Boult",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201115.png" },
+  { "name": "Tristan Stubbs",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185150.png" },
+  { "name": "Shubman Gill",         "image": "gill.png" },
+  { "name": "Shardul Thakur",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201450.png" },
+  { "name": "Suyash Sharma",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204227.png" },
+  { "name": "Sam Curran",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193342.png" }
+]
+,
+            AllRounders: [
+  { "name": "Sanju Samson",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141647.png" },
+  { "name": "Sameer Rizvi",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190514.png" },
+  { "name": "Ruturaj Gaikwad",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183245.png" },
+  { "name": "Steve Smith",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190759.png" },
+  { "name": "Shimron Hetmyer",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185004.png" },
+  { "name": "Krunal Pandya",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193642.png" },
+  { "name": "Anrich Nortje",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201101.png" },
+  { "name": "Karn Sharma",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200153.png" },
+  { "name": "Dhoni",               "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141108.png" },
+  { "name": "Quinton De Kock",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/qdk.png" },
+  { "name": "Ishan Kishan",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141208.png" },
+  { "name": "David Miller",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184738.png" },
+  { "name": "Naveen-ul-Haq",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201348.png" },
+  { "name": "Noor Ahmad",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195708.png" },
+  { "name": "Gerald Coetzee",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.202012.png" },
+  { "name": "Rohit",               "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183311.png" },
+  { "name": "Devon Conway",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141622.png" },
+  { "name": "Mitchell Marsh",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193236.png" },
+  { "name": "Glenn Phillips",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193852.png" },
+  { "name": "Mohammad Shami",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201249.png" }
+]
+,
+            Spinners: [
+  { "name": "Sandeep Sharma",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201740.png" },
+  { "name": "Marcus Stoinis",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193143.png" },
+  { "name": "Avesh Khan",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201608.png" },
+  { "name": "Marco Jansen",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201417.png" },
+  { "name": "Mohit Sharma",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201435.png" },
+  { "name": "Karun Nair",         "image": null },
+  { "name": "Prasidh Krishna",    "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201526.png" },
+  { "name": "Glenn Maxwell",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193127.png" },
+  { "name": "Ishant Sharma",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201507.png" },
+  { "name": "Tushar Deshpande",   "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201759.png" },
+  { "name": "Ajinkya Rahane",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190125.png" },
+  { "name": "Pat Cummins",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201405.png" },
+  { "name": "Josh Hazlewood",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201233.png" },
+  { "name": "Jitesh Sharma",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141502.png" }
+]
+,
+            FastBowlers:[
+  { "name": "Shai Hope",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141759.png" },
+  { "name": "Shahbaz Ahmed",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190736.png" },
+  { "name": "Rahmanullah Gurbaz",  "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141324.png" },
+  { "name": "Anuj Rawat",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141601.png" },
+  { "name": "Kane Williamson",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183725.png" },
+  { "name": "Lalit Yadav",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204259.png" },
+  { "name": "Devdutt Padikkal",    "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204135.png" },
+  { "name": "Kedar Jadhav ",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185106.png" },
+  { "name": "Manish Pandey",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190106.png" },
+  { "name": "Harshal Patel",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201829.png" },
+  { "name": "Ayush Badoni",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190157.png" },
+  { "name": "Abdul Samad",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190248.png" },
+  { "name": "Sarfaraz Khan",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190605.png" },
+  { "name": "Nitish Rana",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190408.png" },
+  { "name": "Yash Dayal",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204410.png" },
+  { "name": "Kyle Mayers",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193955.png" },
+  { "name": "Harry Brook",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190817.png" },
+  { "name": "Lockie Ferguson",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201711.png" },
+  { "name": "Nuwan Thushara",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201815.png" },
+  { "name": "Khaleel Ahmed",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201844.png" }
+]
+,
+        ForeignPlayers:[
+  { "name": "Jake Fraser-McGurk",    "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184920.png" },
+  { "name": "Heinrich Klaasen",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185129.png" },
+  { "name": "Tilak Verma",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190311.png" },
+  { "name": "Andre Russell",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193053.png" },
+  { "name": "Hardik Pandya",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193112.png" },
+  { "name": "Liam Livingstone",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193217.png" },
+  { "name": "Rashid Khan",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195629.png" },
+  { "name": "Varun Chakravarthy",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195749.png" },
+  { "name": "Kagiso Rabada",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201046.png" },
+  { "name": "Arshdeep Singh",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201144.png" },
+  { "name": "Bhuvneshwar Kumar",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201219.png" },
+  { "name": "Umesh Yadav",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201540.png" },
+  { "name": "Riyan Parag",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190352.png" },
+  { "name": "Wanindu Hasaranga",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200050.png" },
+  { "name": "Prabhsimran Singh",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190648.png" },
+  { "name": "Harshit Rana",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204338.png" },
+  { "name": "Mitchell Santner",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193611.png" },
+  { "name": "Evin Lewis",             "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203359.png" },
+  { "name": "Nathan Ellis",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201640.png" },
+  { "name": "Aiden Markram",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193813.png" }
+]
+,
+        IndianPlayers:[
+  { "name": "Tom Latham",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.202956.png" },
+  { "name": "Sam Billings",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203014.png" },
+  { "name": "Reeza Hendricks",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203030.png" },
+  { "name": "Dwaine Pretorius",     "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203104.png" },
+  { "name": "Ish Sodhi",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203118.png" },
+ 
+  { "name": "Babar Azam",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203153.png" },
+  { "name": "Shaheen Afridi",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203209.png" },
+  { "name": "Chris Woakes",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203238.png" },
+  
+  { "name": "James Neesham",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203307.png" },
+  { "name": "Tom Curran",           "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203325.png" },
+  { "name": "Jason Behrendorff",    "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203414.png" },
+  { "name": "Matthew Wade",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203435.png" },
+  { "name": "Jason Roy",            "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203450.png" },
+  { "name": "Kamlesh Nagarkoti",    "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204153.png" },
+  { "name": "Shivam Mavi",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204209.png" },
+  { "name": "Chetan Sakariya",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204320.png" },
+  { "name": "Arjun Tendulkar",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204355.png" },
+  { "name": "Sandeep Warrier",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204433.png" },
+  { "name": "Suyash Prabhudessai",  "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.204457.png" },
+  
+  
+  { "name": "Abhinav Manohar",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190455.png" },
+  { "name": "Narayan Jagadeesan",   "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190625.png" },
+  { "name": "Rilee Rossouw",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190843.png" },
+  { "name": "Jason Holder",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193736.png" },
+  { "name": "Mohammad Nabi",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193751.png" },
+  { "name": "Vijay Shankar",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193911.png" },
+  { "name": "Shakib Al Hasan",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193939.png" },
+  { "name": "R. Sai Kishore",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195928.png" },
+  { "name": "Adam Zampa",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200104.png" },
+  { "name": "Shreyas Gopal",        "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200128.png" },
+  { "name": "Adil Rashid",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.200256.png" },
+  { "name": "Alzarri Joseph",       "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201910.png" },
+  { "name": "Tim Southee",          "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201941.png" },
+  { "name": "Chris Jordan",         "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201958.png" },
+  { "name": "Spencer Johnson",      "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.202034.png" }
+],
+Players:[
+{ "name": "Kieron Pollard", "image": "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-06-12.191743.png" },
+  { "name": "Suresh Raina", "image": "https://i.imgur.com/YHf2ZxE.png" },
+  { "name": "AB de Villiers", "image": "https://i.imgur.com/NsZKLcf.png" },
+  { "name": "Chris Gayle", "image": "https://i.imgur.com/jXk9K0R.png" },
+  { "name": "Dwayne Bravo", "image": "https://i.imgur.com/qb6WrGi.png" },
+  { "name": "Lasith Malinga", "image": "https://i.imgur.com/k2LdQYe.png" },
+  { "name": "Harbhajan Singh", "image": "https://i.imgur.com/5Oe3Eje.png" },
+  { "name": "Shane Watson", "image": "https://i.imgur.com/Oa5V2A4.png" },
+  { "name": "Imran Tahir", "image": "https://i.imgur.com/9NHtI5g.png" },
+  { "name": "Gautam Gambhir", "image": "https://i.imgur.com/1fVkb6H.png" },
+  { "name": "Yuvraj Singh", "image": "https://i.imgur.com/WJbICxz.png" },
+  { "name": "Zaheer Khan", "image": "https://i.imgur.com/ELTJtgr.png" },
+  { "name": "Brett Lee", "image": "https://i.imgur.com/yexFCSM.png" },
+  { "name": "Jacques Kallis", "image": "https://i.imgur.com/nrTyNbi.png" },
+  { "name": "Parthiv Patel", "image": "https://i.imgur.com/T9LPaS7.png" },
+  { "name": "Ashish Nehra", "image": "https://i.imgur.com/4CMwExR.png" },
+  { "name": "RP Singh", "image": "https://i.imgur.com/TWuXSPq.png" },
+  { "name":"Ambati Rayudu", "image": "https://i.imgur.com/M3XKJq9.png" },
+  { "name": "Mitchell Johnson", "image": "https://i.imgur.com/nvOkHrk.png" },
+  { "name": "Michael Hussey", "image": "https://i.imgur.com/5P8bqsm.png" },
+  { "name": "Brendon McCullum", "image": "https://i.imgur.com/yx3KmRE.png" },
+  { "name": "Rahul Dravid", "image": "https://i.imgur.com/WFVuCku.png" },
+  { "name": "Virender Sehwag", "image": "https://i.imgur.com/sZ8pKcO.png" },
+  { "name": "Matthew Hayden", "image": "https://i.imgur.com/1nAcB5V.png" },
+  { "name": "Anil Kumble", "image": "https://i.imgur.com/2YuLoI2.png" },
+  { "name": "Sachin Tendulkar", "image": "https://i.imgur.com/oR0xdDt.png" },
+  { "name": "Adam Gilchrist", "image": "https://i.imgur.com/4g94Rkx.png" },
+  { "name": "Muttiah Muralitharan", "image": "https://i.imgur.com/ZAYcK4u.png" },
+  { "name": "Ricky Ponting", "image": "https://i.imgur.com/UEm7a3P.png" },
+  { "name": "Kevin Pietersen", "image": "https://i.imgur.com/y3X8wkr.png" }
+]
+
+
+		};
+		function showPlayers(category) {
+            const playersList = players[category];
+            if (!playersList) return;
+
+            let html = `<h2>${category.replace(/([A-Z])/g, ' $1')}</h2><div class="cards">`;
+            playersList.forEach(player => {
+                const name = player.name || player;
+                const image = player.image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect fill="%23e5e7eb" width="100%" height="100%"/><text x="50%" y="50%" text-anchor="middle" fill="%239ca3af" font-size="14">No Image</text></svg>';
+html += `
+    <div class="card">
+        <img src="${image}" alt="${name}" loading="lazy">
+        <div class="info">${name}</div>
+    </div>
+`;
+            });
+            html += `</div>`;
+            document.getElementById("playersList").innerHTML = html;
+        }
+        
+
+        let teams = JSON.parse(localStorage.getItem("teams")) || {
+            "Sujin": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Ajin": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Abi": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Asoke": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Kamal": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Anish": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "DD": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Raja": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Aswath": { players: [], totalSpent: 0, remainingBudget: 150 },
+            "Varshan": { players: [], totalSpent: 0, remainingBudget: 150 },
+             "rrk": { players: [], totalSpent: 0, remainingBudget: 150 },
+             "Gokul": { players: [], totalSpent: 0, remainingBudget: 150 },
+              "Jerwin": { players: [], totalSpent: 0, remainingBudget: 150 },
+        };
+        
+        let currentCategory = "";
+    let currentIndex = 0;
+
+    function showPlayers(category) {
+        currentCategory = category;
+        currentIndex = 0;
+        displayPlayer();
+    }
+    function displayPlayer() {
+    const playerContainer = document.getElementById("playerDisplay");
+    const player = players[currentCategory][currentIndex];
+
+    if (!player) {
+        playerContainer.innerHTML = "No player found.";
+        return;
+    }
+
+    const playerName = (typeof player === "object") ? player.name : player;
+    const playerImage = (typeof player === "object" && player.image) ? player.image : "";
+
+    playerContainer.innerHTML = `
+        <div style="text-align: center;">
+            <h2>${playerName}
+                <button onclick="copyToClipboard('${playerName}')" 
+                        style="
+            background:orange; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer;">
+                    📋 Copy
+                </button>
+            </h2>
+            ${playerImage ? `<img src="${playerImage}" style="max-width: 200px; border-radius: 8px;">` : "<p>No image available.</p>"}
+        </div>
+    `;
+}
+
+function copyToClipboard(text) {
+    // Try Clipboard API first (works in most modern browsers)
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showCopyToast("Copied: " + text);
+            })
+            .catch(err => {
+                fallbackCopy(text);
+            });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    // Create a temporary hidden textarea
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Avoid scrolling to bottom
+    textArea.style.position = "fixed";
+    textArea.style.top = 0;
+    textArea.style.left = 0;
+    textArea.style.opacity = 0;
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand("copy");
+        showCopyToast(successful ? "Copied: " + text : "Copy failed");
+    } catch (err) {
+        alert("Unable to copy.");
+    }
+
+    document.body.removeChild(textArea);
+}
+function showCopyToast(message) {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = 1;
+    }, 10);
+    setTimeout(() => {
+        toast.style.opacity = 0;
+        setTimeout(() => document.body.removeChild(toast), 300);
+    }, 2000);
+}
+
+
+function nextPlayer() {
+    if (!players[currentCategory] || !Array.isArray(players[currentCategory]) || players[currentCategory].length === 0) {
+        alert("No players available in this category!");
+        return;
+    }
+
+    currentIndex = (currentIndex + 1) % players[currentCategory].length;
+    displayPlayer();
+
+    const player = players[currentCategory][currentIndex];
+
+    if (player && typeof player === "object") {
+        if (player.name) {
+            alert('The next player is ' + player.name);
+            speakText('The next player is ' + player.name);
+        } else {
+            alert("Player name is missing.");
+        }
+
+        showImageAlert(); // Show image if available
+    } else {
+        alert('The next player is  '+ players[currentCategory][currentIndex] ); 
+        speakText('The next player is  '+ players[currentCategory][currentIndex] );
+        
+    }
+}
+
+
+
+function prevPlayer() {
+    if (!players[currentCategory] || players[currentCategory].length === 0) return;
+    currentIndex = (currentIndex - 1 + players[currentCategory].length) % players[currentCategory].length;
+    displayPlayer();
+}
+
+function showImageAlert() {
+    const player = players[currentCategory][currentIndex];
+
+    if (typeof player === "object" && player.image) {
+        // Remove existing alert if already open
+        const existingAlert = document.getElementById("imageAlert");
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        // Create a new image alert
+        const imgAlert = `
+            <div id="imageAlert" style="
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.8); display: flex; 
+                justify-content: center; align-items: center; 
+                z-index: 1000; padding: 20px; box-sizing: border-box;
+            ">
+                <div style="
+                    background: white; padding: 10px; width: 90%; 
+                    max-width: 500px; text-align: center; 
+                    border-radius: 10px; box-shadow: 0px 0px 15px black;
+                ">
+                    <p style="font-size: 22px; font-weight: bold; margin-bottom: 10px;">
+                        ${player.name}
+                    </p>
+                    <img src="${player.image}" style="
+                        width: 100%; height: auto; border-radius: 8px; 
+                        max-height: 80vh; object-fit: contain;
+                    ">
+                <br>
+                <button onclick="document.getElementById('imageAlert').remove()" style="
+                    background: red; 
+                    color: white; 
+                    border: none; 
+                    padding: 5px 10px; 
+                    margin-top: 10px; 
+                    font-size: 14px; 
+                    cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
+        document.body.insertAdjacentHTML("beforeend", imgAlert);
+    } else {
+        alert("No image.");
+    }
+}
+
+        let totalBudget = 150;
+        let playerLimit = 20;
+        
+        function setTeam() {
+            const selectedTeam = document.getElementById("teamName").value;
+            if (!selectedTeam) {
+                alert("Please select a user!");
+                return;
+            }
+            document.getElementById("selectedTeam").textContent = "Selected User: " + selectedTeam;
+        }
+        
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                let speech = new SpeechSynthesisUtterance(text);
+                speech.lang = 'en-US';
+                speech.volume = 1;
+                speech.rate = 1;
+                speech.pitch = 1;
+                window.speechSynthesis.speak(speech);
+            }
+        }
+// ✅ Initialize teams object if not defined
+ function addToAuction() {
+    const selectedTeam = document.getElementById("teamName").value;
+    const player = document.getElementById("playerName").value;
+    let price = parseFloat(document.getElementById("price").value);
+     let auctionVideo = document.getElementById("auctionVideo");
+
+    console.log("Add to Auction clicked!"); 
+
+    if (!selectedTeam || !player || isNaN(price) || price <= 0) {
+        alert("Please enter valid details!");
+        speakText("Please enter valid details!");
+        return;
+    }
+
+    console.log("Displaying video..."); // Debugging
+
+    // Show the video and play from the start
+    auctionVideo.style.display = "block";
+    auctionVideo.currentTime = 0;
+    auctionVideo.play();
+
+    // Hide the video after 5 seconds
+    setTimeout(() => {
+        console.log("Hiding video..."); // Debugging
+        auctionVideo.style.display = "none";
+    }, 15000);
+
+    // ✅ Prevent Duplicate Player
+    for (let team in teams) {
+        if (teams[team]?.players?.some(p => p.player === player)) {
+            alert(`Player "${player}" is already sold!`);
+             speakText(`Player "${player}" is already sold!`);
+            return;
+        }
+    }
+if (unsoldPlayers.includes(player)) {
+            alert(`Player "${player}" is in the unsold list and cannot be added to another table!`);
+            speakText(`Player ${player} is in the unsold list and cannot be added!`);
+            return;
+        }
+    // ✅ Ensure Team Exists
+    if (!teams[selectedTeam]) {
+        teams[selectedTeam] = { players: [], totalSpent: 0, remainingBudget: totalBudget };
+    }
+
+    // ✅ Ensure players array exists
+    if (!teams[selectedTeam].players) {
+        teams[selectedTeam].players = [];
+    }
+
+    // ✅ Player Limit Check
+    if (teams[selectedTeam].players.length >= playerLimit) {
+        alert("Player limit reached for this team!");
+        speakText("Player limit reached for " + selectedTeam);
+        return;
+    }
+
+    // ✅ Budget Check
+    if (teams[selectedTeam].totalSpent + price > totalBudget) {
+        alert("Budget Exceeded! You cannot spend more than ₹150 Cr.");
+        speakText("Budget Exceeded! You cannot spend more than 150 crore rupees.");
+        return;
+    }
+
+    let points = playerPoints[player] || 4;
+
+    // ✅ Add Player to Team
+    teams[selectedTeam].players.push({ player, price, points });
+    teams[selectedTeam].totalSpent += price;
+    teams[selectedTeam].remainingBudget = totalBudget - teams[selectedTeam].totalSpent;
+
+    // 🔥 Update Firebase and FORCE UI Update
+    update(ref(db, `teams/${selectedTeam}`), {
+        players: teams[selectedTeam].players,
+        totalSpent: teams[selectedTeam].totalSpent,
+        remainingBudget: teams[selectedTeam].remainingBudget
+    }).then(() => {
+        console.log(`✅ Player "${player}" added successfully to ${selectedTeam}`);
+        updateTeamTables(); // ✅ Ensure UI updates immediately
+    }).catch(error => {
+        console.error("❌ Error adding player to Firebase:", error);
+    });
+
+    // 🔥 Save auction data
+    set(ref(db, `auctions/${player}`), {
+        player,
+        price,
+        team: selectedTeam,
+        points,
+        timestamp: Date.now()
+    });
+
+    let totalPoints = teams[selectedTeam].players.reduce((sum, p) => sum + (p.points || 0), 0);
+    let message = `${selectedTeam} bought ${player} for ${price} Crores.`;
+
+    if (price >= 0.5 && price <= 5) message += "\nIt's a steal buy!";
+    else if (price > 5 && price <= 10) message += "\nIt's an excellent buy!";
+    else if (price > 10 && price <= 15) message += "\nIt's a great buy!";
+    else if (price > 15 && price <= 20) message += "\nIt's a good buy!";
+    else if (price > 21) message += "\nOver Priced!";
+    message += `\nTotal Points: ${totalPoints}.`;
+
+    alert(message);
+    speakText(message);
+      // 🔥 Send Real-Time Message
+    push(ref(db, "auctionMessages"), {
+        message: `${selectedTeam} bought ${player} for ₹${price} Cr!`,
+        totalPoints: totalPoints,  
+        timestamp: Date.now()
+    });
+
+    alert(`${selectedTeam} bought ${player} for ₹${price} Cr!\nTotal Points: ${totalPoints}`);
+}
+
+
+
+
+
+
+// ✅ Remove Player from Firebase
+function removePlayerFromFirebase(team, playerName) {
+    if (confirm(`Are you sure you want to remove ${playerName} from ${team}?`)) {
+        let newPlayers = teams[team]?.players?.filter(p => p.player !== playerName) || [];
+        let totalSpent = newPlayers.reduce((sum, p) => sum + p.price, 0);
+        let remainingBudget = totalBudget - totalSpent;
+
+        let teamUpdate = {
+            players: newPlayers,
+            totalSpent,
+            remainingBudget
+        };
+
+        // 🔥 If no players left, ensure empty array is saved in Firebase
+        if (newPlayers.length === 0) {
+            teamUpdate.players = []; // Explicitly set empty array
+        }
+
+        // 🔥 Update Firebase
+        update(ref(db, `teams/${team}`), teamUpdate)
+        .then(() => {
+            console.log(`✅ Player "${playerName}" removed successfully from ${team}`);
+            updateTeamTables(); // ✅ Ensure UI updates immediately
+        })
+        .catch(error => {
+            console.error("❌ Error removing player from Firebase:", error);
+        });
+
+        // 🔥 Remove player from auction records
+        remove(ref(db, `auctions/${playerName}`));
+    }
+}
+
+
+// ✅ Listen for Auction Updates (Real-Time)
+function listenForAuctionUpdates() {
+    onValue(ref(db, "auctions"), (snapshot) => {
+        if (snapshot.exists()) {
+            console.log("Auction Updates:", snapshot.val());
+            updateAuctionTable(snapshot.val());
+        } else {
+            console.log("No auction data available.");
+        }
+    });
+}
+function updateTeamTables() {
+    const teamsContainer = document.getElementById("teamsContainer");
+    const userSelector = document.getElementById("userSelector");
+    
+    if (!teamsContainer) {
+        console.error("teamsContainer div is missing in HTML!");
+        return;
+    }
+
+    // ✅ Use Firebase onValue to listen for real-time updates
+    onValue(ref(db, "teams"), (snapshot) => {
+        if (snapshot.exists()) {
+            const teamsData = snapshot.val();
+            console.log("🔄 Live Team Data from Firebase:", teamsData);
+
+            teams = teamsData; // ✅ Keep local teams updated
+            
+            // ✅ Populate user selector dropdown
+            const userOptions = Object.keys(teamsData);
+            const currentValue = userSelector.value;
+            
+            // Clear existing options except the first one
+            while (userSelector.options.length > 1) {
+                userSelector.remove(1);
+            }
+            
+            // Add all users to dropdown
+            userOptions.forEach(user => {
+                const option = document.createElement("option");
+                option.value = user;
+                option.textContent = user;
+                userSelector.appendChild(option);
+            });
+            
+            // Restore previous selection if it still exists
+            if (currentValue && userOptions.includes(currentValue)) {
+                userSelector.value = currentValue;
+            }
+            
+            // Display the selected user's table
+            displaySelectedUserTable();
+        } else {
+            console.log("No team data available.");
+            teamsContainer.innerHTML = ""; // ❌ Don't show any message if no teams exist
+        }
+    }, { onlyOnce: false }); // ✅ Listen for real-time updates!
+}
+
+// ✅ Display only the selected user's table
+function displaySelectedUserTable() {
+    const teamsContainer = document.getElementById("teamsContainer");
+    const userSelector = document.getElementById("userSelector");
+    const selectedTeam = userSelector.value;
+    
+    teamsContainer.innerHTML = ""; // Clear previous content
+    
+    if (!selectedTeam || !teams[selectedTeam]) {
+        teamsContainer.innerHTML = "<p style='text-align: center; color: #999; font-size: 1.1rem;'>Select a user to view their team</p>";
+        return;
+    }
+    
+    const teamsData = teams;
+    const team = selectedTeam;
+    const teamDiv = document.createElement("div");
+    teamDiv.style.marginBottom = "20px";
+
+    // ✅ Ensure players list is always an array
+    let players = teamsData[team]?.players ? Object.values(teamsData[team].players) : [];
+
+    let totalPoints = players.reduce((sum, player) => sum + (player.points || 0), 0);
+
+    let playersHTML = players.length > 0
+        ? players.map(player => `
+            <tr>
+                <td>${player.player}</td>
+                <td>₹${player.price.toFixed(2)} Cr</td>
+                <td>${player.points}</td>
+                <td>
+                    <button class="remove-btn" onclick="removePlayerFromFirebase('${team}', '${player.player}')"
+                        style="padding: 10px 15px; font-size: 14px;">
+                        Remove
+                    </button>
+                </td>
+            </tr>
+        `).join("")
+        : "<tr><td colspan='4' style='text-align: center; color: #999;'>No players added yet</td></tr>";
+
+    teamDiv.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 1.8rem; text-transform: uppercase;">${team}</h3>
+        </div>
+        <p><strong>Total Spent: ₹${(teamsData[team].totalSpent || 0).toFixed(2)} Cr</strong></p>
+        <p><strong>Remaining Budget: ₹${(teamsData[team].remainingBudget || totalBudget).toFixed(2)} Cr</strong></p>
+        <p><strong>Players: ${players.length}/${playerLimit}</strong></p>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Price (Cr)</th>
+                    <th>Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="team-${team}-players">${playersHTML}</tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total Players: ${players.length}</strong></td>
+                    <td colspan="2"><strong>Total Points: ${totalPoints}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+
+    teamsContainer.appendChild(teamDiv);
+    
+    // ✅ Add Player Cards Section
+    displayPlayerCards(team, players);
+}
+
+// ✅ Display player cards by category with images (Squad Style - matching squad-index.html)
+function displayPlayerCards(team, playersList) {
+    const teamsContainer = document.getElementById("teamsContainer");
+    
+    // ✅ Build a comprehensive player map from the players object
+    const playerMap = {};
+    const categoryMap = {};
+    
+    // Map each player name to their category and details
+    for (let category in players) {
+        if (Array.isArray(players[category])) {
+            players[category].forEach(player => {
+                const playerName = player.name || player;
+                if (!playerMap[playerName]) {
+                    playerMap[playerName] = {
+                        name: playerName,
+                        image: player.image || null,
+                        category: category
+                    };
+                }
+                categoryMap[playerName] = category;
+            });
+        }
+    }
+    
+    // Categorize players into Batter, All-rounder, Bowler
+    const categories = {
+        "Batter": [],
+        "All-rounder": [],
+        "Bowler": []
+    };
+    
+    // Assign role-based categories
+    const roleCategoryMap = {
+        "Wicketkeepers": "Batter",
+        "Openers": "Batter",
+        "MiddleOrder": "Batter",
+        "AllRounders": "All-rounder",
+        "Spinners": "Bowler",
+        "FastBowlers": "Bowler",
+        "Players": "Batter",
+        "ForeignPlayers": "Batter",
+        "IndianPlayers": "Batter"
+    };
+    
+    // Check if player is foreign
+    const isForeignPlayer = (playerName) => {
+        return players["ForeignPlayers"]?.some(p => (p.name || p) === playerName) || false;
+    };
+    
+    // Process team players
+    playersList.forEach(playerObj => {
+        const playerName = playerObj.player;
+        const playerInfo = playerMap[playerName];
+        
+        if (playerInfo) {
+            const originalCategory = playerInfo.category;
+            const roleCategory = roleCategoryMap[originalCategory] || "Batter";
+            const isIndian = !isForeignPlayer(playerName);
+            
+            categories[roleCategory].push({
+                name: playerName,
+                points: playerObj.points,
+                image: playerInfo.image,
+                isIndian: isIndian
+            });
+        }
+    });
+    
+    // Create wrapper for all cards section
+    let cardsHTML = `<div style="margin-top: 50px; padding: 0;">`;
+    
+    // Display each category in separate sections with black boxes and horizontal images
+    const categoryOrder = ["Batter", "All-rounder", "Bowler"];
+    const categoryLabels = {
+        "Batter": "Batters",
+        "All-rounder": "All Rounders",
+        "Bowler": "Bowlers"
+    };
+
+    categoryOrder.forEach(category => {
+        if (categories[category].length > 0) {
+            cardsHTML += `
+                <section class="player-section">
+                    <h2 class="section-title">${categoryLabels[category]}</h2>
+                    <div class="cards">`;
+
+            categories[category].forEach(player => {
+                const img = player.image ? player.image : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect fill="%23e5e7eb" width="100%" height="100%"/><text x="50%" y="50%" text-anchor="middle" fill="%239ca3af" font-size="14">No Image</text></svg>';
+
+                cardsHTML += `
+                        <div class="card">
+                            <div class="media">
+                                <img src="${img}" alt="${player.name}" loading="lazy">
+                            </div>
+                            <div class="body">
+                                <p class="player-name">${player.name}</p>
+                                <p class="player-role">${category}</p>
+                            </div>
+                        </div>`;
+            });
+
+            cardsHTML += `
+                    </div>
+                </section>`;
+        }
+    });
+
+    cardsHTML += `</div>`;
+    
+    // Add cards to container
+    const cardsDiv = document.createElement("div");
+    cardsDiv.innerHTML = cardsHTML;
+    teamsContainer.appendChild(cardsDiv);
+}
+
+// ✅ Action button handlers for squad cards
+function editPlayerFromCard(playerName) {
+    console.log('Edit player:', playerName);
+    alert('Edit functionality for: ' + playerName);
+}
+
+function movePlayerFromCard(playerName) {
+    console.log('Move player:', playerName);
+    alert('Move functionality for: ' + playerName);
+}
+
+function starPlayerFromCard(playerName) {
+    console.log('Star player:', playerName);
+    alert('Star functionality for: ' + playerName);
+}
+
+// ✅ Helper function to get category icon
+function getCategoryIcon(category) {
+    const icons = {
+        "Batter": "🏏",
+        "All-rounder": "🎯",
+        "Bowler": "⚾"
+    };
+    return icons[category] || "🏟️";
+}
+
+// ✅ Helper function to get color for category
+function getColorForCategory(category) {
+    const colors = {
+        "Batter": "#E74C3C",
+        "All-rounder": "#27AE60",
+        "Bowler": "#3498DB"
+    };
+    return colors[category] || "#667eea";
+}
+
+// ✅ Helper function to get background gradient for category
+function getCategoryBackgroundGradient(category)

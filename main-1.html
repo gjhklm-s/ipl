@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auction Round</title>
+    <script type="module">
+      // Import Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        remove,
+      } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+        authDomain: "happy-70335.firebaseapp.com",
+        databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+        projectId: "happy-70335",
+        storageBucket: "happy-70335.firebasestorage.app",
+        messagingSenderId: "471068695841",
+        appId: "1:471068695841:web:583eccd3c92b236d123260",
+        measurementId: "G-SD1EHGBRP9",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      console.log("✅ Firebase Initialized");
+
+      // Firebase References
+      const playersRef = ref(db, "players");
+
+      // Firebase Reference for username
+      const usernameRef = ref(db, "currentUser/username");
+
+      // Load username on page load
+      onValue(usernameRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const username = snapshot.val();
+          console.log("✅ Username loaded:", username);
+          document.getElementById("usernameDisplay").innerText = username;
+        }
+      });
+
+      // Load players on page load
+      onValue(playersRef, (snapshot) => {
+        const tableBody = document.getElementById("playersTableBody");
+        tableBody.innerHTML = ""; // Clear existing rows
+
+        let totalAmount = 0;
+
+        if (snapshot.exists()) {
+          const playersData = snapshot.val();
+          for (const playerName in playersData) {
+            const playerData = playersData[playerName];
+            const row = document.createElement("tr");
+
+            const amount = parseFloat(playerData.amount || 0);
+            totalAmount += amount;
+
+            row.innerHTML = `
+            <td>${playerName}</td>
+            <td>${amount.toFixed(1)} Cr</td>
+            <td><button class="delete-btn" onclick="deletePlayer('${playerName}')">Delete</button></td>
+          `;
+            tableBody.appendChild(row);
+          }
+        }
+
+        // Update total amount
+        document.getElementById("totalAmount").textContent =
+          totalAmount.toFixed(1) + " Cr";
+      });
+
+      // Delete player function
+      window.deletePlayer = function (playerName) {
+        if (confirm(`Are you sure you want to delete ${playerName}?`)) {
+          const playerRef = ref(db, `players/${playerName}`);
+          remove(playerRef)
+            .then(() => {
+              alert(`✅ ${playerName} deleted from table!`);
+            })
+            .catch((error) => {
+              console.error("❌ Error deleting player:", error);
+              alert("❌ Failed to delete player.");
+            });
+        }
+      };
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        padding: 20px;
+        overflow-x: hidden;
+      }
+
+      canvas#snow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      h1 {
+        color: white;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        text-align: center;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      .box {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: transform 0.2s;
+      }
+
+      .box:hover {
+        transform: translateY(-5px);
+      }
+
+      .box h2 {
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+        color: #333;
+      }
+
+      .box h4 {
+        margin: 5px 0;
+        font-weight: normal;
+      }
+
+      .box button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        background: #00c9a7;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 10px;
+      }
+
+      .box button:hover {
+        background: #007f6b;
+      }
+
+      .bottom-button {
+        display: block;
+        margin: 40px auto 0 auto;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s;
+      }
+
+      .bottom-button:hover {
+        background: #c0392b;
+      }
+
+      /* Player Table Styles */
+      .table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 30px auto;
+        max-width: 800px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .table-container h2 {
+        color: #333;
+        text-align: center;
+        margin-top: 0;
+      }
+
+      .players-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      .players-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      .players-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        color: #333;
+      }
+
+      .players-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .delete-btn {
+        background: linear-gradient(135deg, #f5576c, #f093fb);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+      }
+
+      .delete-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+      }
+
+      .total-section {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .total-section span {
+        font-size: 1.5rem;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="snow"></canvas>
+    <h1>Welcome, <span id="usernameDisplay">Guest</span>!</h1>
+
+    <!-- Player Table Section -->
+    <div class="table-container">
+      <h2>📊 Players in Table</h2>
+      <table class="players-table">
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            <th>Amount (Cr)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="playersTableBody">
+          <tr>
+            <td colspan="3" style="text-align: center; color: #999">
+              No players added yet
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="total-section">
+        Total Amount: <span id="totalAmount">0.0 Cr</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="box">
+        <h2>Hide and Seek</h2>
+        <h4>Find the player with the given Clue.</h4>
+        <button onclick="checkPassword('round 1.html', '3333')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Hidden Price</h2>
+        <h4>Enter a price for a given player.</h4>
+        <button onclick="checkPassword('round 2.html', '2002')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Bid Spinner</h2>
+        <h4>
+          Spin to know the bid counts. Format: [7.5] = 7 bids of 5cr each.
+        </h4>
+        <button onclick="checkPassword('round 3.html', '2003')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Roll Dice</h2>
+        <h4>Spin to know your problem.</h4>
+        <h4>Note: 111 means GIVE THE PLAYER.</h4>
+        <button onclick="checkPassword('round 4.html', '2004')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Find Who?</h2>
+        <h4>Find the player with the given clue.</h4>
+        <button onclick="checkPassword('round 5.html', '3333')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Automatic Auction</h2>
+        <h4>Choose the best suitable price for you before others.</h4>
+        <button onclick="checkPassword('round 6.html', '3333')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Half Price</h2>
+        <h4>The actual price will be reduced to half.</h4>
+        <button onclick="checkPassword('round 7.html', '2007')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Low Budget Players</h2>
+        <h4>If you want, take it.</h4>
+        <button onclick="checkPassword('round 8.html', '2008')">Start</button>
+      </div>
+      <div class="box">
+        <h2>Ghibli Art</h2>
+        <h4>Find the player and bid.</h4>
+        <button onclick="checkPassword('round 9.html', '2009')">Start</button>
+      </div>
+    </div>
+
+    <button
+      class="bottom-button"
+      onclick="checkPassword('main 2.html', '2010')"
+    >
+      Add Amount
+    </button>
+
+    <script>
+      function checkPassword(targetPage, correctPassword) {
+        const userPassword = prompt("Enter the password to continue:");
+        if (userPassword === correctPassword) {
+          window.location.href = targetPage;
+        } else {
+          alert("Incorrect password. Access denied.");
+        }
+      }
+
+      // ❄ Snowfall Effect
+      const canvas = document.getElementById("snow");
+      const ctx = canvas.getContext("2d");
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      const snowflakes = [];
+
+      function createSnowflakes() {
+        for (let i = 0; i < 400; i++) {
+          snowflakes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 4 + 1,
+            speed: Math.random() * 1 + 0.5,
+            drift: Math.random() * 2 - 1,
+          });
+        }
+      }
+
+      function drawSnowflakes() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        for (const flake of snowflakes) {
+          ctx.moveTo(flake.x, flake.y);
+          ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        moveSnowflakes();
+      }
+
+      function moveSnowflakes() {
+        for (const flake of snowflakes) {
+          flake.y += flake.speed;
+          flake.x += flake.drift;
+          if (flake.y > height)
+            (flake.y = 0), (flake.x = Math.random() * width);
+          if (flake.x > width || flake.x < 0) flake.x = Math.random() * width;
+        }
+      }
+
+      function loop() {
+        drawSnowflakes();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("resize", () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      });
+
+      createSnowflakes();
+      loop();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Budget Player Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #a5be7c, #40e1fd);
+      text-align: center;
+      padding: 30px 15px;
+      margin: 0;
+    }
+
+    .player-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .player-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 200px;
+      box-sizing: border-box;
+    }
+
+    .player-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .player-card p {
+      margin: 5px 0;
+      font-size: 1rem;
+    }
+
+    #adminInput {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #adminInput input {
+      padding: 8px;
+      font-size: 1rem;
+      width: 70%;
+      max-width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #adminInput button {
+      padding: 8px 15px;
+      font-size: 1rem;
+      margin-left: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #adminInput button:hover {
+      background-color: #218838;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .player-card {
+        max-width: 90%;
+      }
+
+      .player-card h3 {
+        font-size: 1rem;
+      }
+
+      .player-card p {
+        font-size: 0.95rem;
+      }
+
+      #adminInput input, #adminInput button {
+        width: 100%;
+        margin: 5px 0;
+      }
+
+      #adminInput {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Low Budget Players</h1>
+
+  <div id="adminInput">
+    <input type="password" id="adminPassword" placeholder="Enter password" />
+    <button onclick="showPlayers()">Show Players</button>
+  </div>
+
+  <div class="player-list" id="playerList"></div>
+  <div style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);">
+    <a href="n2.html">
+      <button style="font-size: 18px; padding: 12px 30px; border-radius: 8px; background-color: #ffffff; color: #0072ff; font-weight: bold;">
+        🏠 Main Page
+      </button>
+    </a>
+  </div>
+
+  <script>
+    const playerPoints = {
+      "Shai Hope": 6, "Shahbaz Ahmed":7, "Rahmanullah Gurbaz": 7,
+      "Anuj Rawat": 7, "Kane Williamson": 6, "Lalit Yadav":6,
+      "Devdutt Padikkal": 7, "Kedar Jadhav": 6, "Manish Pandey": 7,
+      "Harshal Patel": 8, "Ayush Badoni": 7, "Abdul Samad": 7,
+      "Sarfaraz Khan": 6, "Nitish Rana": 6, "Yash Dayal": 8,
+      "Kyle Mayers": 7,"Harry Brook":7,"Lockie Ferguson":6,   "Nuwan Thushara":7,  "Khaleel Ahmed":7
+    };
+
+    const playerPrice = {
+      "Shai Hope": 1, "Shahbaz Ahmed":1.5, "Rahmanullah Gurbaz": 2.25,
+      "Anuj Rawat": 2.5, "Kane Williamson": 1, "Lalit Yadav":0.50,
+      "Devdutt Padikkal": 2, "Kedar Jadhav": 0.25, "Manish Pandey": 2.25,
+      "Harshal Patel": 3, "Ayush Badoni": 1.5, "Abdul Samad": 2,
+      "Sarfaraz Khan": 0.75, "Nitish Rana": 1, "Yash Dayal": 3.25,
+      "Kyle Mayers": 2,"Harry Brook":1.50,"Lockie Ferguson":0.50,   "Nuwan Thushara":2,  "Khaleel Ahmed":2
+    };
+
+    function showPlayers() {
+      const pass = document.getElementById("adminPassword").value.trim();
+      if (pass !== "77") {
+        alert("Incorrect password!");
+        return;
+      }
+
+      const container = document.getElementById("playerList");
+      container.innerHTML = "";
+
+      Object.keys(playerPoints).forEach(player => {
+        const price = playerPrice[player];
+        if (price <= 5) {
+          const card = document.createElement("div");
+          card.className = "player-card";
+          card.innerHTML = `
+            <h3>${player}</h3>
+            <p><strong>Points:</strong> ${playerPoints[player]}</p>
+            <p><strong>Price:</strong> ₹${price} Cr</p>
+          `;
+          container.appendChild(card);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

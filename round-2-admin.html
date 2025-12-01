@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💰 Hidden Price Admin Panel</title>
+  
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(to right, #fca2ae, #fdfd40);
+      --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      --success-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+      --text-primary: #333333;
+      --text-light: #ffffff;
+      --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.2);
+      --border-radius: 20px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--primary-gradient);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    .admin-container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--border-radius);
+      padding: 40px;
+      box-shadow: var(--shadow-heavy);
+      border: 3px solid rgba(252, 162, 174, 0.3);
+    }
+
+    .admin-container h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #fca2ae 0%, #fdfd40 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .admin-container > p {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .admin-section {
+      margin-bottom: 40px;
+      text-align: center;
+      padding: 25px;
+      background: rgba(252, 162, 174, 0.05);
+      border-radius: 15px;
+      border-left: 5px solid #fca2ae;
+    }
+
+    .admin-section h2 {
+      font-size: 1.5rem;
+      margin: 0 0 25px 0;
+      color: #333;
+    }
+
+    .info-box {
+      background: rgba(253, 253, 64, 0.1);
+      border-left: 4px solid #fdfd40;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: left;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    .amounts-display {
+      background: white;
+      border: 2px solid #fca2ae;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      max-height: 350px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .amount-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+    }
+
+    .amount-item:last-child {
+      border-bottom: none;
+    }
+
+    .amount-item .name {
+      color: #333;
+    }
+
+    .amount-item .value {
+      color: #fca2ae;
+      font-weight: bold;
+    }
+
+    .winner-box {
+      background: linear-gradient(135deg, rgba(0, 176, 155, 0.1), rgba(150, 201, 61, 0.1));
+      border: 2px solid #00b09b;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .password-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+
+    .password-input {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid #fca2ae;
+      background: white;
+      color: #333;
+      font-size: 1rem;
+      min-width: 220px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .password-input:focus {
+      outline: none;
+      border-color: #fdfd40;
+      box-shadow: 0 0 15px rgba(253, 253, 64, 0.3);
+    }
+
+    .password-input::placeholder {
+      color: #999;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 25px 0;
+    }
+
+    button {
+      padding: 14px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+    }
+
+    .btn-danger {
+      background: var(--danger-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+    }
+
+    .btn-danger:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(235, 51, 73, 0.6);
+    }
+
+    .btn-danger:active {
+      transform: scale(0.95);
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-back:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 25px rgba(79, 172, 254, 0.6);
+    }
+
+    .btn-back:active {
+      transform: scale(0.95);
+    }
+
+    .status-message {
+      padding: 18px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-message.success {
+      background: rgba(0, 176, 155, 0.15);
+      border: 2px solid #00b09b;
+      color: #008b6f;
+      display: block;
+    }
+
+    .status-message.error {
+      background: rgba(235, 51, 73, 0.15);
+      border: 2px solid #eb3349;
+      color: #c72a3f;
+      display: block;
+    }
+
+    .status-message.info {
+      background: rgba(253, 253, 64, 0.15);
+      border: 2px solid #fdfd40;
+      color: #996600;
+      display: block;
+    }
+
+    .stats-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border: 2px solid #fca2ae;
+    }
+
+    .stats-box h3 {
+      margin: 10px 0;
+      font-size: 1.3rem;
+      color: #fca2ae;
+    }
+
+    .stats-box p {
+      margin: 8px 0;
+      color: #666;
+    }
+
+    .warning-box {
+      background: rgba(247, 151, 30, 0.1);
+      border-left: 5px solid #f7971e;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: left;
+      color: #555;
+    }
+
+    .warning-box strong {
+      color: #f7971e;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 35px;
+    }
+
+    @media (max-width: 600px) {
+      .admin-container {
+        padding: 25px;
+        margin: 20px 10px;
+      }
+
+      .admin-container h1 {
+        font-size: 2rem;
+      }
+
+      .password-input {
+        min-width: 100%;
+      }
+
+      button {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+
+      .password-group {
+        flex-direction: column;
+      }
+
+      .amounts-display {
+        max-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>💰 Hidden Price Admin Panel</h1>
+    <p>Manage submitted amounts and control game data</p>
+    
+    <!-- Status Message -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- Show All Amounts Section -->
+    <div class="admin-section">
+      <h2>📊 View All Submitted Amounts</h2>
+      
+      <p>View all submitted amounts sorted by highest to lowest:</p>
+      
+      <div class="amounts-display" id="amountsDisplay">
+        <p style="color: #999; text-align: center;">No data available yet</p>
+      </div>
+
+      <button class="btn-primary" onclick="loadAndShowAllAmounts()">🔍 Load All Amounts</button>
+    </div>
+
+    <!-- Clear All Data Section -->
+    <div class="admin-section">
+      <h2>🗑️ Clear All Data</h2>
+      
+      <div class="warning-box">
+        <strong>⚠️ Warning:</strong><br>
+        This will permanently delete all submitted amounts. This action cannot be undone. Only use this to restart the round.
+      </div>
+
+      <div class="password-group">
+        <input 
+          type="password" 
+          id="adminPassword" 
+          class="password-input" 
+          placeholder="Enter admin password"
+          autocomplete="off"
+        >
+        <button class="btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+      </div>
+
+      <div class="stats-box">
+        <h3 id="totalAmounts">Total Submissions: 0</h3>
+        <p id="lastUpdate">Last Updated: -</p>
+      </div>
+    </div>
+
+    <!-- Broadcast Message Section -->
+    <div class="admin-section">
+      <h2>📢 Broadcast Results</h2>
+      
+      <p>Send all submitted amounts to all players:</p>
+      
+      <button class="btn-primary" onclick="broadcastAmounts()">📢 Show All to Players</button>
+      <p style="font-size: 0.9rem; color: #999; margin-top: 15px;">
+        This will notify all players of all submitted amounts
+      </p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="goToRound2()">💰 Back to Hidden Price</button>
+      <button class="btn-back" onclick="goHome()">🏠 Main Page</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      remove,
+      onValue,
+    } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+      authDomain: "happy-70335.firebaseapp.com",
+      databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+      projectId: "happy-70335",
+      storageBucket: "happy-70335.appspot.com",
+      messagingSenderId: "471068695841",
+      appId: "1:471068695841:web:583eccd3c92b236d123260",
+      measurementId: "G-SD1EHGBRP9",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Update stats
+    function updateStats() {
+      onValue(ref(db, "amounts"), (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const count = Object.keys(data).length;
+          document.getElementById("totalAmounts").textContent = `Total Submissions: ${count}`;
+        } else {
+          document.getElementById("totalAmounts").textContent = "Total Submissions: 0";
+        }
+        document.getElementById("lastUpdate").textContent = `Last Updated: ${new Date().toLocaleTimeString()}`;
+      });
+    }
+
+    // Load and display all amounts
+    window.loadAndShowAllAmounts = function() {
+      get(ref(db, "amounts")).then((snapshot) => {
+        const display = document.getElementById("amountsDisplay");
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const sorted = Object.entries(data).sort(
+            (a, b) => b[1].amount - a[1].amount
+          );
+
+          let html = "";
+          sorted.forEach(([user, info], index) => {
+            const isWinner = index === 0;
+            html += `
+              <div class="amount-item" style="${isWinner ? 'background: rgba(253, 253, 64, 0.2); font-weight: bold;' : ''}">
+                <span class="name">${isWinner ? '🏆 ' : ''}${user}</span>
+                <span class="value">₹${info.amount}</span>
+              </div>
+            `;
+          });
+
+          display.innerHTML = html;
+          showStatus(`✅ Loaded ${sorted.length} submissions!`, "success");
+        } else {
+          display.innerHTML = '<p style="color: #999; text-align: center;">No data available</p>';
+          showStatus("ℹ️ No submissions yet", "info");
+        }
+      }).catch((error) => {
+        showStatus("❌ Error loading data: " + error.message, "error");
+      });
+    };
+
+    // Broadcast amounts to all players
+    window.broadcastAmounts = function() {
+      get(ref(db, "amounts")).then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const sorted = Object.entries(data).sort(
+            (a, b) => b[1].amount - a[1].amount
+          );
+
+          const messageList = sorted
+            .map(([user, info]) => `${user}: ₹${info.amount}`)
+            .join("\n");
+          const winner = sorted[0];
+          const winnerMessage = `🏆 Highest Amount Winner: ${winner[0]} with ₹${winner[1].amount}`;
+
+          const fullMessage = `Submitted Amounts:\n\n${messageList}\n\n${winnerMessage}`;
+
+          // Broadcast to all users
+          set(ref(db, "showAllTrigger"), {
+            timestamp: Date.now(),
+            message: fullMessage,
+          }).then(() => {
+            showStatus("✅ Amounts broadcasted to all players!", "success");
+          }).catch((error) => {
+            showStatus("❌ Error broadcasting: " + error.message, "error");
+          });
+        } else {
+          showStatus("ℹ️ No amounts to broadcast", "info");
+        }
+      });
+    };
+
+    // Clear all amounts
+    window.clearAllData = function() {
+      const password = document.getElementById("adminPassword").value;
+
+      if (!password) {
+        showStatus("❌ Please enter the admin password!", "error");
+        return;
+      }
+
+      if (password !== "7") {
+        showStatus("❌ Incorrect password!", "error");
+        document.getElementById("adminPassword").value = "";
+        return;
+      }
+
+      remove(ref(db, "amounts")).then(() => {
+        showStatus("✅ All data cleared successfully!", "success");
+        document.getElementById("adminPassword").value = "";
+        document.getElementById("amountsDisplay").innerHTML = '<p style="color: #999; text-align: center;">No data available</p>';
+        updateStats();
+      }).catch((error) => {
+        showStatus("❌ Error clearing data: " + error.message, "error");
+      });
+    };
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById("statusMessage");
+      statusDiv.textContent = message;
+      statusDiv.className = `status-message ${type}`;
+      
+      setTimeout(() => {
+        statusDiv.className = "status-message";
+      }, 5000);
+    }
+
+    window.goToRound2 = function() {
+      window.location.href = "round-2.html";
+    };
+
+    window.goHome = function() {
+      window.location.href = "main-1.html";
+    };
+
+    // Initialize stats on page load
+    updateStats();
+  </script>
+</body>
+</html>

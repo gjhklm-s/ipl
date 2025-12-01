@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>🎯 Hidden Price Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+
+    <!-- Import Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* CSS Variables for consistent theming */
+      :root {
+        /* Different theme from round-3 and round-4 */
+        --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        --secondary-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        --success-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --text-primary: #ffffff;
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+        --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.3);
+        --border-radius: 20px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* General Body Styles */
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: var(--primary-gradient);
+        background-attachment: fixed;
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background particles */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 25% 40%,
+            rgba(255, 154, 158, 0.2) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 20%,
+            rgba(168, 237, 234, 0.2) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 50% 80%,
+            rgba(255, 236, 210, 0.15) 0%,
+            transparent 50%
+          );
+        animation: backgroundShift 22s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      @keyframes backgroundShift {
+        0%,
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+        25% {
+          transform: translateX(-20px) translateY(-10px);
+        }
+        50% {
+          transform: translateX(20px) translateY(10px);
+        }
+        75% {
+          transform: translateX(-10px) translateY(20px);
+        }
+      }
+
+      /* Container Styling */
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .container:hover::before {
+        left: 100%;
+      }
+
+      .container:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-heavy);
+      }
+
+      /* Enhanced Typography */
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: var(--secondary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        animation: titleGlow 3s ease-in-out infinite alternate;
+        text-align: center;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        color: var(--text-primary);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      h3 {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 0.6rem;
+        color: var(--text-secondary);
+        text-align: center;
+      }
+
+      @keyframes titleGlow {
+        0% {
+          filter: brightness(1);
+        }
+        100% {
+          filter: brightness(1.2);
+        }
+      }
+
+      /* Form Styling */
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        transition: var(--transition);
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      select:focus,
+      input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        transform: scale(1.02);
+      }
+
+      select::placeholder,
+      input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      /* Enhanced Button Styling */
+      button {
+        background: var(--secondary-gradient);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 50px;
+        transition: var(--transition);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      button:hover::before {
+        left: 100%;
+      }
+
+      button:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      button:active {
+        transform: translateY(-1px) scale(1.02);
+      }
+
+      /* Special button variants */
+      .success-button {
+        background: var(--success-gradient);
+      }
+
+      .danger-button {
+        background: var(--danger-gradient);
+      }
+
+      .primary-button {
+        background: var(--warning-gradient);
+      }
+
+      /* Player List Styling */
+      .player-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .player-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 15px;
+        border: 1px solid var(--glass-border);
+        transition: var(--transition);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .player-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .player-card:hover::before {
+        left: 100%;
+      }
+
+      .player-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .player-card h2 {
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      /* Player Display Section */
+      .player-display {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-light);
+        margin: 20px auto;
+        max-width: 500px;
+        text-align: center;
+      }
+
+      .player-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 15px;
+        margin: 15px auto;
+        display: block;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transition: var(--transition);
+      }
+
+      .player-image:hover {
+        transform: scale(1.05);
+      }
+
+      .player-info {
+        margin: 15px 0;
+      }
+
+      .player-info h3 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+      }
+
+      .player-attributes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .attribute {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .attribute-label {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+      }
+
+      .attribute-value {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      /* Navigation buttons */
+      .nav-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .nav-buttons button {
+        width: auto;
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      /* Auction Entry Section */
+      .auction-entry {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid var(--glass-border);
+        margin: 20px auto;
+        max-width: 500px;
+      }
+
+      .auction-entry h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+      }
+
+      .auction-result {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        min-height: 20px;
+      }
+
+      /* Admin Panel Styling */
+      .admin-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid var(--glass-border);
+        margin: 20px 0;
+      }
+
+      .admin-panel h3 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+        background: var(--danger-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+        }
+
+        .player-grid {
+          grid-template-columns: 1fr;
+        }
+
+        button {
+          padding: 12px 20px;
+          font-size: 14px;
+        }
+      }
+
+      /* Loading Animation */
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .loading {
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--secondary-gradient);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-gradient);
+      }
+
+      /* Divider Styling */
+      .divider {
+        height: 2px;
+        background: var(--secondary-gradient);
+        border-radius: 1px;
+        margin: 30px 0;
+        position: relative;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 12px;
+        background: var(--secondary-gradient);
+        border-radius: 6px;
+      }
+    </style>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        set,
+        get,
+        remove,
+        onValue,
+        update,
+        push,
+      } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyB71Ps4M3pkO9Y9YbZtQtcnta8mwXR-luU",
+        authDomain: "happy-70335.firebaseapp.com",
+        databaseURL: "https://happy-70335-default-rtdb.firebaseio.com",
+        projectId: "happy-70335",
+        storageBucket: "happy-70335.appspot.com",
+        messagingSenderId: "471068695841",
+        appId: "1:471068695841:web:583eccd3c92b236d123260",
+        measurementId: "G-SD1EHGBRP9",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      // Load username from Firebase
+      let currentUsername = "";
+      const usernameRef = ref(db, "currentUser/username");
+      onValue(usernameRef, (snapshot) => {
+        if (snapshot.exists()) {
+          currentUsername = snapshot.val();
+          console.log("✅ Username loaded from Firebase:", currentUsername);
+          // Auto-select the username in the dropdown
+          const userSelect = document.getElementById("userSelect");
+          if (userSelect) {
+            userSelect.value = currentUsername;
+          }
+        }
+      });
+
+      // Submit amount
+      window.submitAmount = async function () {
+        const user = document.getElementById("userSelect").value || currentUsername;
+        const amount = parseFloat(document.getElementById("amountInput").value);
+
+        if (!amount || amount <= 0) {
+          alert("Enter a valid amount.");
+          return;
+        }
+
+        const userRef = ref(db, "amounts/" + user);
+        const allAmountsRef = ref(db, "amounts");
+
+        try {
+          // 1. Check if user already submitted
+          const userSnap = await get(userRef);
+          if (userSnap.exists()) {
+            alert(
+              "This user has already submitted. Wait for data to be cleared."
+            );
+            return;
+          }
+
+          // 2. Check if amount already used by another user
+          const allSnap = await get(allAmountsRef);
+          if (allSnap.exists()) {
+            const allData = allSnap.val();
+            const amountExists = Object.values(allData).some(
+              (entry) => entry.amount === amount
+            );
+            if (amountExists) {
+              alert(
+                "This amount has already been submitted by another user. Please choose a different one."
+              );
+              return;
+            }
+          }
+
+          // 3. Submit amount
+          await set(userRef, { amount: amount });
+          alert(`Amount ₹${amount} submitted for ${user}.`);
+          document.getElementById("amountInput").value = "";
+        } catch (error) {
+          console.error("Submission Error:", error);
+          alert("Error submitting data.");
+        }
+      };
+
+      // Admin: Show All + trigger alert for all users
+      window.showAllAmounts = function () {
+        const password = prompt("Enter password to show all amounts:");
+        if (password !== "7") {
+          alert("Incorrect password.");
+          return;
+        }
+
+        get(ref(db, "amounts")).then((snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            const sorted = Object.entries(data).sort(
+              (a, b) => b[1].amount - a[1].amount
+            );
+            const messageList = sorted
+              .map(([user, info]) => `${user}: \u20B9${info.amount}`)
+              .join("\n");
+            const winner = sorted[0];
+            const winnerMessage = `Highest Amount Winner: ${winner[0]} with \u20B9${winner[1].amount}`;
+
+            const fullMessage = `Submitted Amounts:\n\n${messageList}\n\n${winnerMessage}`;
+
+            // Broadcast to all users
+            set(ref(db, "showAllTrigger"), {
+              timestamp: Date.now(),
+              message: fullMessage,
+            });
+
+            alert("Amounts shown to all users!");
+          } else {
+            alert("No data found.");
+          }
+        });
+      };
+
+      // Admin: Clear All
+      window.clearAllAmounts = function () {
+        const password = prompt("Enter password to clear all data:");
+        if (password !== "7") {
+          alert("Incorrect password.");
+          return;
+        }
+
+        remove(ref(db, "amounts")).then(() => {
+          alert("All data cleared.");
+          document.getElementById("amountList").innerHTML = "";
+        });
+      };
+
+      // 🔔 Realtime Listener for showAllTrigger — visible to ALL USERS
+      onValue(ref(db, "showAllTrigger"), (snapshot) => {
+        if (snapshot.exists()) {
+          const { message, timestamp } = snapshot.val();
+
+          // Prevent duplicate alerts (once per load)
+          const lastShown = localStorage.getItem("lastShownTrigger");
+          if (lastShown != timestamp.toString()) {
+            alert("Submitted Amounts:\n\n" + message);
+            localStorage.setItem("lastShownTrigger", timestamp.toString());
+          }
+        }
+      });
+
+      // ---------- Player Display and Auction Functionality ----------
+      const round2Players = [
+        {
+          name: "Rishab Pant",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.140645.png",
+          role: "Wicketkeeper",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Right Arm",
+          points: 10,
+        },
+        {
+          name: "Virat Kohli",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184806.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 10,
+        },
+        {
+          name: "Shreyas Iyer",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190542.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Leg Break",
+          points: 9,
+        },
+        {
+          name: "Faf du Plessis",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183554.png",
+          role: "Batsman",
+          nation: "South Africa",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Leg Break",
+          points: 8,
+        },
+        {
+          name: "Axar Patel",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193359.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Left Arm Orthodox",
+          points: 8,
+        },
+        {
+          name: "Dhruv Jurel",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.190333.png",
+          role: "Wicketkeeper",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 7,
+        },
+        {
+          name: "Ben Stokes",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193008.png",
+          role: "All Rounder",
+          nation: "England",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Right Arm Fast Medium",
+          points: 7,
+        },
+        {
+          name: "KL Rahul",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141347.png",
+          role: "Wicketkeeper",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 8,
+        },
+        {
+          name: "Rachin Ravindra",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193326.png",
+          role: "All Rounder",
+          nation: "New Zealand",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Left Arm Orthodox",
+          points: 7,
+        },
+        {
+          name: "Nitish Reddy",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193713.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 9,
+        },
+        {
+          name: "Ravindra Jadeja",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193307.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Left Arm Orthodox",
+          points: 8,
+        },
+        {
+          name: "Dewald Brevis",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185037.png",
+          role: "Batsman",
+          nation: "South Africa",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Leg Break",
+          points: 8,
+        },
+        {
+          name: "Yashasvi Jaiswal",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.183422.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Right Arm Leg Break",
+          points: 8,
+        },
+        {
+          name: "Shahrukh Khan",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185406.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Off Break",
+          points: 7,
+        },
+        {
+          name: "Shivam Dube",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185300.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 8,
+        },
+        {
+          name: "Washington Sundar",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193437.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Left Hand",
+          bowlingStyle: "Right Arm Off Break",
+          points: 7,
+        },
+        {
+          name: "Romario Shepherd",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.193201.png",
+          role: "All Rounder",
+          nation: "West Indies",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Fast Medium",
+          points: 8,
+        },
+        {
+          name: "Ravichandran Ashwin",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195653.png",
+          role: "Bowler",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Off Break",
+          points: 10,
+        },
+        {
+          name: "Yuzvendra Chahal",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.195821.png",
+          role: "Bowler",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Leg Break",
+          points: 10,
+        },
+        {
+          name: "Jofra Archer",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201202.png",
+          role: "Bowler",
+          nation: "England",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Fast",
+          points: 9,
+        },
+        {
+          name: "Jasprit Bumrah",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.201132.png",
+          role: "Bowler",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Fast Medium",
+          points: 10,
+        },
+        {
+          name: "Urvil Patel",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141208.png",
+          role: "Wicketkeeper",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 7,
+        },
+        {
+          name: "Ayuesh Matra",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141208.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 8,
+        },
+        {
+          name: "Will Jacks",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.184902.png",
+          role: "All Rounder",
+          nation: "England",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Off Break",
+          points: 8,
+        },
+        {
+          name: "Jonny Bairstow",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.141258.png",
+          role: "Wicketkeeper",
+          nation: "England",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 8,
+        },
+        {
+          name: "Rovman Powell",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185221.png",
+          role: "Batsman",
+          nation: "West Indies",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 6,
+        },
+        {
+          name: "Rahul Tripathi",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185245.png",
+          role: "Batsman",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Medium",
+          points: 7,
+        },
+        {
+          name: "Deepak Hooda",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.185324.png",
+          role: "All Rounder",
+          nation: "India",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Off Break",
+          points: 6,
+        },
+        {
+          name: "Lungi Ngidi",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203252.png",
+          role: "Bowler",
+          nation: "South Africa",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Fast Medium",
+          points: 7,
+        },
+        {
+          name: "Mark Wood",
+          image:
+            "https://github.com/gjhklm-s/advance/releases/download/qdk/Screenshot.2025-03-16.203135.png",
+          role: "Bowler",
+          nation: "England",
+          battingStyle: "Right Hand",
+          bowlingStyle: "Right Arm Fast",
+          points: 7,
+        },
+      ];
+
+      let currentPlayerIndex = 0;
+
+      // Display current player
+      function displayCurrentPlayer() {
+        const player = round2Players[currentPlayerIndex];
+        const displayDiv = document.getElementById("playerDisplay");
+
+        if (displayDiv) {
+          displayDiv.innerHTML = `
+          <div class="player-info">
+            <h3>${player.name}</h3>
+            <img src="${player.image}" alt="${player.name}" class="player-image" onerror="this.style.display='none'">
+            <div class="player-attributes">
+              <div class="attribute">
+                <div class="attribute-label">Role</div>
+                <div class="attribute-value">${player.role}</div>
+              </div>
+              <div class="attribute">
+                <div class="attribute-label">Nation</div>
+                <div class="attribute-value">${player.nation}</div>
+              </div>
+              <div class="attribute">
+                <div class="attribute-label">Batting</div>
+                <div class="attribute-value">${player.battingStyle}</div>
+              </div>
+              <div class="attribute">
+                <div class="attribute-label">Bowling</div>
+                <div class="attribute-value">${player.bowlingStyle}</div>
+              </div>
+              <div class="attribute">
+                <div class="attribute-label">Points</div>
+                <div class="attribute-value">${player.points}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        }
+      }
+
+      // Navigation functions
+      window.nextPlayer = function () {
+        currentPlayerIndex = (currentPlayerIndex + 1) % round2Players.length;
+        displayCurrentPlayer();
+      };
+
+      window.prevPlayer = function () {
+        currentPlayerIndex =
+          (currentPlayerIndex - 1 + round2Players.length) %
+          round2Players.length;
+        displayCurrentPlayer();
+      };
+
+      // Auction functionality
+      window.addToAuctionFromR2 = function () {
+        const player = round2Players[currentPlayerIndex];
+        const user = document.getElementById("auctionUserR2")?.value;
+        const amount = parseFloat(
+          document.getElementById("auctionAmountR2")?.value
+        );
+        const resultDiv = document.getElementById("auctionResultR2");
+
+        if (!user) {
+          showNotificationR2("Please select a user!", "error");
+          if (resultDiv) resultDiv.textContent = "❌ Please select a user!";
+          return;
+        }
+
+        if (!amount || amount <= 0 || amount > 50) {
+          showNotificationR2("Enter valid amount (0.1 - 50 Cr)", "error");
+          if (resultDiv)
+            resultDiv.textContent = "❌ Enter valid amount (0.1 - 50 Cr)";
+          return;
+        }
+
+        // Check if player is already sold
+        get(ref(db, `auctions/${player.name}`)).then((snap) => {
+          if (snap.exists()) {
+            showNotificationR2(
+              `Player "${player.name}" is already sold!`,
+              "error"
+            );
+            if (resultDiv)
+              resultDiv.textContent = `❌ Player "${player.name}" is already sold!`;
+            return;
+          }
+
+          // Add to auction
+          set(ref(db, `auctions/${player.name}`), {
+            player: player.name,
+            price: amount,
+            team: user,
+            points: player.points,
+            timestamp: Date.now(),
+          })
+            .then(() => get(ref(db, `teams/${user}`)))
+            .then((userSnap) => {
+              const team = userSnap.val() || {
+                players: [],
+                totalSpent: 0,
+                remainingBudget: 150,
+              };
+              team.players = team.players || [];
+              team.players.push({
+                player: player.name,
+                price: amount,
+                points: player.points,
+              });
+              team.totalSpent = (team.totalSpent || 0) + amount;
+              team.remainingBudget = 150 - team.totalSpent;
+              return set(ref(db, `teams/${user}`), team).then(() => team);
+            })
+            .then((team) => {
+              // Send auction message
+              push(ref(db, "auctionMessages"), {
+                message: `${user} bought ${player.name} for ₹${amount} Cr!`,
+                totalPoints: (team.players || []).reduce(
+                  (s, p) => s + (p.points || 0),
+                  0
+                ),
+                timestamp: Date.now(),
+              });
+
+              showNotificationR2(
+                `✅ ${user} bought ${player.name} for ₹${amount} Cr!`,
+                "success"
+              );
+              if (resultDiv)
+                resultDiv.textContent = `✅ ${user} bought ${player.name} for ₹${amount} Cr!`;
+
+              // Clear amount input
+              const amtInput = document.getElementById("auctionAmountR2");
+              if (amtInput) amtInput.value = "";
+            })
+            .catch((err) => {
+              console.error(err);
+              showNotificationR2(
+                "Error adding to auction. Try again.",
+                "error"
+              );
+              if (resultDiv)
+                resultDiv.textContent =
+                  "❌ Error adding to auction. Try again.";
+            });
+        });
+      };
+
+      // Notification helper
+      function showNotificationR2(message, type = "info") {
+        const div = document.createElement("div");
+        div.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 12px 16px; border-radius: 10px; color: #fff; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,.3);`;
+        div.textContent = message;
+        div.style.background =
+          type === "success"
+            ? "linear-gradient(135deg,#a8edea,#fed6e3)"
+            : type === "error"
+            ? "linear-gradient(135deg,#ff9a9e,#fad0c4)"
+            : "linear-gradient(135deg,#ff9a9e,#fecfef)";
+        document.body.appendChild(div);
+        setTimeout(() => {
+          div.style.transition = "all .3s";
+          div.style.opacity = "0";
+          div.style.transform = "translateX(100%)";
+          setTimeout(() => div.remove(), 300);
+        }, 2500);
+      }
+
+      // Initialize player display on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        displayCurrentPlayer();
+      });
+    </script>
+  </head>
+  <body>
+    <!-- Header Section -->
+    <div class="container">
+      <h1>🎯 Hidden Price Challenge</h1>
+      <p
+        style="
+          font-size: 1.1rem;
+          color: var(--text-secondary);
+          margin-bottom: 0;
+          text-align: center;
+        "
+      >
+        Submit your hidden amount for the player auction. The highest bidder
+        wins!
+      </p>
+    </div>
+
+    <!-- Submission Form -->
+    <div class="container">
+      <div class="form-group">
+        <label for="userSelect">👤 Select Your Player:</label>
+        <select id="userSelect">
+          <option value="">🎯 Choose Your Player</option>
+          <option value="Karan">Periyar</option>
+          <option value="Selva">Selva</option>
+          <option value="Koushik">Kanish</option>
+          <option value="Manoj">Manoj</option>
+          <option value="Avenash">Avenash</option>
+          <option value="Shanio">Bathri</option>
+          <option value="Rohit">Rohit</option>
+          <option value="Abdul">Abdul</option>
+          <option value="Aswath">Aswath</option>
+          <option value="Gokul">Gokul</option>
+          <option value="Jerwin">Jerwin</option>
+          <option value="rrk">rrk</option>
+          <option value="Varshan">Yswanth</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="amountInput">💰 Enter Your Hidden Amount:</label>
+        <input
+          type="number"
+          id="amountInput"
+          placeholder="Enter your bid amount"
+        />
+      </div>
+
+      <button onclick="submitAmount()" class="success-button">
+        🚀 Submit Amount
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Player Display Section -->
+    <div class="player-display">
+      <h2>🎯 Player Spotlight</h2>
+      <div id="playerDisplay">
+        <!-- Player will be displayed here -->
+      </div>
+
+      <div class="nav-buttons">
+        <button onclick="prevPlayer()" class="primary-button">
+          ⬅️ Previous
+        </button>
+        <button onclick="nextPlayer()" class="success-button">Next ➡️</button>
+      </div>
+    </div>
+
+    <!-- Quick Auction Entry -->
+    <div class="auction-entry">
+      <h3>💰 Quick Auction Entry</h3>
+      <div class="form-group">
+        <label for="auctionUserR2">👤 Select User:</label>
+        <select id="auctionUserR2">
+          <option value="">-- Select User --</option>
+          <option value="Sujin">Sujin</option>
+          <option value="Ajin">Ajin</option>
+          <option value="Abi">Abi</option>
+          <option value="Asoke">Asoke</option>
+          <option value="Kamal">Kamal</option>
+          <option value="Anish">Anish</option>
+          <option value="DD">DD</option>
+          <option value="Raja">Raja</option>
+          <option value="Aswath">Aswath</option>
+          <option value="Varshan">Varshan</option>
+          <option value="rrk">rrk</option>
+          <option value="Gokul">Gokul</option>
+          <option value="Jerwin">Jerwin</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="auctionAmountR2">💰 Enter Amount (Cr):</label>
+        <input
+          type="number"
+          id="auctionAmountR2"
+          placeholder="Enter amount in crores"
+          step="0.1"
+          min="0.1"
+          max="50"
+        />
+      </div>
+
+      <button onclick="addToAuctionFromR2()" class="success-button">
+        🚀 Add to Auction Table
+      </button>
+      <div id="auctionResultR2" class="auction-result"></div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Navigation -->
+    <div class="container">
+      <button
+        onclick="extPage()"
+        class="primary-button"
+        style="margin-bottom: 10px"
+      >
+        🏠 Main Page
+      </button>
+      <button
+        onclick="goToAdminPanel()"
+        class="primary-button"
+        style="margin-bottom: 30px"
+      >
+        🔧 Admin Panel
+      </button>
+    </div>
+  </body>
+  <script>
+    function extPage() {
+      window.location.href = "main-1.html"; // Replace with your actual page URL
+    }
+
+    function goToAdminPanel() {
+      window.location.href = "round-2-admin.html";
+    }
+  </script>
+</html>
